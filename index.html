@@ -1,627 +1,604 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>1 mensagem nova</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background: #111b21;
-    font-family: 'Nunito', sans-serif;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .header {
-    background: #1f2c34;
-    color: white;
-    padding: 10px 14px;
-    display: flex;
-    align-items: center;
-    gap: 11px;
-    width: 100%;
-    max-width: 480px;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    box-shadow: 0 1px 0 rgba(255,255,255,0.05);
-  }
-
-  .h-back { font-size: 1.4rem; color: #aaa; cursor: pointer; }
-
-  .h-av-wrap { position: relative; flex-shrink: 0; }
-
-  .h-av {
-  width: 42px; height: 42px;
-  border-radius: 50%;
-  background: url('avatar.jpg') center/cover;
-  filter: blur(0px);
-  transform: scale(1.08);
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
 }
 
-  .h-online {
-    position: absolute;
-    bottom: 1px; right: 1px;
-    width: 11px; height: 11px;
-    background: #25d366;
-    border-radius: 50%;
-    border: 2px solid #1f2c34;
-    animation: blink 2s ease infinite;
-  }
-
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
-
-  .h-info { flex: 1; }
-  .h-name { font-size: 0.95rem; font-weight: 800; color: #e9edef; }
-  .h-status { font-size: 0.71rem; color: #25d366; font-weight: 700; }
-
-  .h-counter {
-    background: rgba(37,211,102,0.15);
-    border: 1px solid rgba(37,211,102,0.3);
-    border-radius: 20px;
-    padding: 4px 10px;
-    font-size: 0.71rem;
-    color: #25d366;
-    font-weight: 800;
-    white-space: nowrap;
-  }
-
-  /* CHAT */
-  .chat-area {
-    width: 100%;
-    max-width: 480px;
-    padding: 10px 10px 130px;
-    min-height: calc(100vh - 62px);
-    background: #0b141a;
-  }
-
-  .date-pill { text-align: center; margin: 6px 0 12px; }
-  .date-pill span {
-    background: rgba(255,255,255,0.06);
-    color: #8696a0;
-    font-size: 0.69rem;
-    padding: 4px 12px;
-    border-radius: 20px;
-  }
-
-  /* BUBBLES — весь диалог за 2.4 сек */
-  .msg-row {
-    display: flex;
-    margin-bottom: 3px;
-    opacity: 0;
-    animation: msgIn 0.3s ease forwards;
-  }
-
-  .msg-row.recv { justify-content: flex-start; }
-  .msg-row.sent { justify-content: flex-end; }
-
-  /* АНИМАЦИЯ ПО ПОРЯДКУ */
-
-#chat-default .msg-row:nth-of-type(1) {
-  animation-delay: 0.3s;
+body{
+  background:#0b141a;
+  font-family:'Nunito',sans-serif;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
 }
 
-#chat-default .msg-row:nth-of-type(2) {
-  animation-delay: 0.7s;
+/* HEADER */
+
+.header{
+  width:100%;
+  max-width:480px;
+  background:#1f2c34;
+  padding:10px 14px;
+  display:flex;
+  align-items:center;
+  gap:11px;
+  position:sticky;
+  top:0;
+  z-index:100;
 }
 
-#chat-default .msg-row:nth-of-type(3) {
-  animation-delay: 1.1s;
+.h-back{
+  color:#aaa;
+  font-size:1.5rem;
 }
 
-#chat-default .msg-row:nth-of-type(4) {
-  animation-delay: 1.5s;
+.h-av-wrap{
+  position:relative;
 }
 
-#chat-default .msg-row:nth-of-type(5) {
-  animation-delay: 3.2s;
+.h-av{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  background:url('avatar.jpg') center/cover;
 }
 
-#chat-default .msg-row:nth-of-type(6) {
-  animation-delay: 3.6s;
+.h-online{
+  position:absolute;
+  bottom:0;
+  right:0;
+  width:11px;
+  height:11px;
+  border-radius:50%;
+  background:#25d366;
+  border:2px solid #1f2c34;
 }
 
-  @keyframes msgIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to   { opacity: 1; transform: translateY(0);   }
-  }
-
-  .bubble {
-    max-width: 72%;
-    padding: 7px 12px 5px;
-    border-radius: 10px;
-    font-size: 0.87rem;
-    line-height: 1.45;
-    word-break: break-word;
-  }
-
-  .recv .bubble {
-    background: #202c33;
-    border-top-left-radius: 2px;
-    color: #e9edef;
-  }
-
-  .sent .bubble {
-    background: #005c4b;
-    border-top-right-radius: 2px;
-    color: #e9edef;
-  }
-
-  .time {
-    font-size: 0.64rem;
-    color: #8696a0;
-    text-align: right;
-    margin-top: 2px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 3px;
-  }
-
-  .ticks { font-size: 0.72rem; color: #53bdeb; }
-
-  /* VIDEO CALL BUBBLE */
-  .video-bubble {
-    background: #202c33;
-    border-radius: 10px;
-    border-top-left-radius: 2px;
-    padding: 12px 14px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    max-width: 72%;
-  }
-
-  .video-icon {
-    width: 42px; height: 42px;
-    background: rgba(37,211,102,0.15);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.2rem;
-    flex-shrink: 0;
-  }
-
-  .video-info strong { font-size: 0.85rem; color: #e9edef; display: block; }
-  .video-info span   { font-size: 0.75rem; color: #8696a0; }
-
-  /* PHOTOS */
-  .photos-row {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 3px;
+.h-info{
+  flex:1;
 }
 
-  .photo-wrap {
-    width: 110px; height: 140px;
-    border-radius: 10px;
-    overflow: hidden;
-    position: relative;
-    flex-shrink: 0;
+.h-name{
+  color:#fff;
+  font-weight:800;
+  font-size:0.95rem;
+}
+
+.h-status{
+  color:#25d366;
+  font-size:0.72rem;
+  font-weight:700;
+}
+
+.h-counter{
+  background:rgba(37,211,102,0.12);
+  border:1px solid rgba(37,211,102,0.3);
+  color:#25d366;
+  font-size:0.72rem;
+  padding:4px 10px;
+  border-radius:20px;
+  font-weight:800;
+}
+
+/* CHAT */
+
+.chat{
+  width:100%;
+  max-width:480px;
+  padding:10px 10px 140px;
+}
+
+.date{
+  text-align:center;
+  margin-bottom:12px;
+}
+
+.date span{
+  background:rgba(255,255,255,0.06);
+  color:#8696a0;
+  font-size:0.7rem;
+  padding:5px 12px;
+  border-radius:20px;
+}
+
+/* MESSAGE */
+
+.msg{
+  display:flex;
+  margin-bottom:6px;
+  opacity:0;
+  transform:translateY(10px);
+  animation:show .35s forwards;
+}
+
+.recv{
+  justify-content:flex-start;
+}
+
+.sent{
+  justify-content:flex-end;
+}
+
+@keyframes show{
+  to{
+    opacity:1;
+    transform:translateY(0);
   }
+}
 
-  .photo-blur {
-    width: 100%; height: 100%;
-    filter: blur(9px);
-    transform: scale(1.2);
+.bubble{
+  max-width:74%;
+  padding:8px 12px 6px;
+  border-radius:10px;
+  font-size:0.88rem;
+  line-height:1.45;
+}
+
+.recv .bubble{
+  background:#202c33;
+  color:#e9edef;
+  border-top-left-radius:2px;
+}
+
+.sent .bubble{
+  background:#005c4b;
+  color:#fff;
+  border-top-right-radius:2px;
+}
+
+.time{
+  font-size:0.64rem;
+  color:#8696a0;
+  margin-top:3px;
+  text-align:right;
+}
+
+/* PHOTOS */
+
+.photos{
+  display:flex;
+  gap:6px;
+  margin-bottom:6px;
+  opacity:0;
+  transform:translateY(10px);
+  animation:show .35s forwards;
+}
+
+.photo{
+  width:110px;
+  height:140px;
+  border-radius:10px;
+  overflow:hidden;
+  position:relative;
+}
+
+.photo-bg{
+  width:100%;
+  height:100%;
+  filter:blur(9px);
+  transform:scale(1.2);
+}
+
+.p1{
+  background:url('photo1.jpg') center/cover;
+}
+
+.p2{
+  background:url('photo2.jpg') center/cover;
+}
+
+.p3{
+  background:url('photo3.jpg') center/cover;
+}
+
+.overlay{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,0.3);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  gap:5px;
+}
+
+.lock{
+  font-size:1.6rem;
+}
+
+.lock-text{
+  color:#fff;
+  font-size:0.7rem;
+  font-weight:800;
+  text-align:center;
+}
+
+/* TYPING */
+
+.typing{
+  display:flex;
+  margin-top:6px;
+  opacity:0;
+  transform:translateY(10px);
+  animation:show .35s forwards;
+}
+
+.typing-box{
+  background:#202c33;
+  padding:10px 14px;
+  border-radius:10px;
+  display:flex;
+  gap:5px;
+}
+
+.dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:#8696a0;
+  animation:bounce 1s infinite;
+}
+
+.dot:nth-child(2){
+  animation-delay:.15s;
+}
+
+.dot:nth-child(3){
+  animation-delay:.3s;
+}
+
+@keyframes bounce{
+  0%,60%,100%{
+    transform:translateY(0);
   }
-
-.p1 { background: url('photo1.jpg') center/cover; }
-.p2 { background: url('photo2.jpg') center/cover; }
-.p3 { background: url('photo3.jpg') center/cover; }
-
-  .photo-overlay {
-    position: absolute; inset: 0;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    gap: 5px;
-    background: rgba(0,0,0,0.3);
+  30%{
+    transform:translateY(-5px);
   }
+}
 
-  .photo-overlay .lock { font-size: 1.6rem; }
-  .photo-overlay .lock-label {
-    color: rgba(255,255,255,0.9);
-    font-size: 0.68rem; font-weight: 800;
-    text-align: center;
-    text-shadow: 0 1px 4px rgba(0,0,0,0.5);
-    line-height: 1.3;
+/* BOTTOM */
+
+.bottom{
+  position:fixed;
+  bottom:0;
+  width:100%;
+  max-width:480px;
+  background:#1f2c34;
+  padding:12px 14px 16px;
+  border-top:1px solid rgba(255,255,255,0.05);
+  opacity:0;
+  transform:translateY(100%);
+  animation:bottomShow .4s forwards;
+  animation-delay:4.5s;
+}
+
+@keyframes bottomShow{
+  to{
+    opacity:1;
+    transform:translateY(0);
   }
+}
 
-  /* TYPING */
-  .typing-row {
-    display: flex;
-    margin-bottom: 8px;
-    opacity: 0;
-    animation: msgIn 0.3s ease forwards;
-    animation-delay: 2.5s;
-  }
+.locked{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  background:rgba(255,255,255,0.04);
+  border:1px dashed rgba(255,255,255,0.12);
+  border-radius:10px;
+  padding:10px 12px;
+  margin-bottom:10px;
+}
 
-  .typing-bub {
-    background: #202c33;
-    border-radius: 10px;
-    border-top-left-radius: 2px;
-    padding: 10px 14px;
-    display: flex; gap: 5px; align-items: center;
-  }
+.locked strong{
+  display:block;
+  color:#fff;
+  font-size:0.82rem;
+}
 
-  .td {
-    width: 7px; height: 7px;
-    background: #8696a0; border-radius: 50%;
-    animation: tdB 1.1s ease infinite;
-  }
+.locked span{
+  color:#8696a0;
+  font-size:0.72rem;
+}
 
-  .td:nth-child(2) { animation-delay: 0.18s; }
-  .td:nth-child(3) { animation-delay: 0.36s; }
+.cta{
+  width:100%;
+  border:none;
+  border-radius:12px;
+  background:linear-gradient(135deg,#00a884,#008f6f);
+  color:#fff;
+  font-size:0.95rem;
+  font-weight:800;
+  padding:15px;
+  cursor:pointer;
+}
 
-  @keyframes tdB {
-    0%,60%,100% { transform: translateY(0); }
-    30% { transform: translateY(-6px); }
-  }
-
-  /* BOTTOM CTA — появляется на 2.8с */
-  .bottom {
-    position: fixed; bottom: 0;
-    width: 100%; max-width: 480px;
-    background: #1f2c34;
-    border-top: 1px solid rgba(255,255,255,0.05);
-    padding: 12px 14px 16px;
-    opacity: 0;
-    animation: slideUp 0.5s ease forwards;
-    animation-delay: 2.8s;
-  }
-
-  @keyframes slideUp {
-    from { transform: translateY(100%); opacity: 0; }
-    to   { transform: translateY(0);    opacity: 1; }
-  }
-
-  .locked-row {
-    display: flex; align-items: center; gap: 10px;
-    background: rgba(255,255,255,0.04);
-    border: 1px dashed rgba(255,255,255,0.1);
-    border-radius: 10px;
-    padding: 10px 13px;
-    margin-bottom: 10px;
-  }
-
-  .locked-row .l-icon { font-size: 1.2rem; }
-  .locked-row .l-text strong { font-size: 0.82rem; color: #e9edef; display: block; }
-  .locked-row .l-text span   { font-size: 0.73rem; color: #8696a0; }
-
-  .cta {
-    width: 100%;
-    background: linear-gradient(135deg, #00a884, #008f6f);
-    color: white; border: none; border-radius: 12px;
-    padding: 15px;
-    font-size: 0.95rem; font-weight: 800;
-    font-family: 'Nunito', sans-serif;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    box-shadow: 0 4px 20px rgba(0,168,132,0.3);
-    -webkit-tap-highlight-color: transparent;
-    transition: all 0.15s ease;
-  }
-
-  .cta:active { transform: scale(0.98); }
-
-  .trust {
-    text-align: center; font-size: 0.69rem;
-    color: #8696a0; margin-top: 8px;
-  }
+.trust{
+  text-align:center;
+  color:#8696a0;
+  font-size:0.68rem;
+  margin-top:8px;
+}
 </style>
 </head>
+
 <body>
 
 <!-- HEADER -->
+
 <div class="header">
+
   <div class="h-back">‹</div>
+
   <div class="h-av-wrap">
     <div class="h-av"></div>
     <div class="h-online"></div>
   </div>
+
   <div class="h-info">
     <div class="h-name" id="girl-name">Mariana, 23</div>
-    <div class="h-status" id="girl-status">● online agora</div>
+    <div class="h-status">● online agora</div>
   </div>
+
   <div class="h-counter">95 online</div>
+
 </div>
 
 <!-- CHAT -->
-<div class="chat-area">
-  <div class="date-pill"><span>Hoje</span></div>
 
-  <!-- Дефолтный чат (фото-угол) -->
-  <div id="chat-default">
-    <div class="msg-row recv">
-      <div class="bubble">
-        Oi 😊 você mora perto daqui?
-        <div class="time"><span class="t"></span></div>
-      </div>
-    </div>
+<div class="chat">
 
-    <div class="msg-row recv">
-      <div class="bubble">
-        vi seu perfil aqui no app 👀
-        <div class="time"><span class="t"></span></div>
-      </div>
-    </div>
+  <div class="date">
+    <span>Hoje</span>
+  </div>
 
-    <div class="msg-row sent">
-      <div class="bubble">
-        Oi! Sim moro aqui pertinho 😄
-        <div class="time"><span class="t"></span> <span class="ticks">✓✓</span></div>
-      </div>
-    </div>
+  <!-- MESSAGE 1 -->
 
-    <div class="msg-row recv">
-      <div class="bubble">
-        que ótimo!! posso te mandar umas fotos? 🙈🔥
-        <div class="time"><span class="t"></span></div>
-      </div>
-    </div>
-
-    <div class="photos-row">
-      <div class="photo-wrap">
-        <div class="photo-blur p1"></div>
-        <div class="photo-overlay">
-          <div class="lock">🔒</div>
-          <div class="lock-label">foto<br>privada</div>
-        </div>
-      </div>
-      <div class="photo-wrap">
-        <div class="photo-blur p2"></div>
-        <div class="photo-overlay">
-          <div class="lock">🔒</div>
-          <div class="lock-label">foto<br>privada</div>
-        </div>
-      </div>
-      <div class="photo-wrap">
-        <div class="photo-blur p3"></div>
-        <div class="photo-overlay">
-          <div class="lock">🔒</div>
-          <div class="lock-label">foto<br>privada</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="msg-row recv">
-      <div class="bubble">
-        me chama lá 😅 não consigo mandar tudo aqui
-        <div class="time"><span class="t"></span></div>
-      </div>
-    </div>
-
-    <div class="msg-row recv">
-      <div class="bubble">
-        é grátis, rapidinho 💌
-        <div class="time"><span class="t"></span></div>
-      </div>
+  <div class="msg recv" style="animation-delay:.2s;">
+    <div class="bubble">
+      Oi 😊 você mora perto daqui?
+      <div class="time" id="t1"></div>
     </div>
   </div>
 
-  <!-- Видео-угол (angle=video) -->
-  <div id="chat-video" style="display:none">
-    <div class="msg-row recv">
-      <div class="bubble">
-        Oi 😊 você mora perto daqui?
-        <div class="time"><span class="tv"></span></div>
-      </div>
-    </div>
+  <!-- MESSAGE 2 -->
 
-    <div class="msg-row recv">
-      <div class="bubble">
-        quero fazer uma videochamada com você 📹🔥
-        <div class="time"><span class="tv"></span></div>
-      </div>
-    </div>
-
-    <div class="msg-row sent">
-      <div class="bubble">
-        Oi! Sim quero 😄
-        <div class="time"><span class="tv"></span> <span class="ticks">✓✓</span></div>
-      </div>
-    </div>
-
-    <div class="msg-row recv">
-      <div class="bubble">
-        ótimo!! entra lá que fico te esperando 🙈
-        <div class="time"><span class="tv"></span></div>
-      </div>
-    </div>
-
-    <div class="msg-row recv">
-      <div class="video-bubble">
-        <div class="video-icon">📹</div>
-        <div class="video-info">
-          <strong>Videochamada privada</strong>
-          <span>Aguardando você...</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="msg-row recv">
-      <div class="bubble">
-        me chama lá rapidinho 💌
-        <div class="time"><span class="tv"></span></div>
-      </div>
+  <div class="msg recv" style="animation-delay:.9s;">
+    <div class="bubble">
+      vi seu perfil aqui no app 👀
+      <div class="time" id="t2"></div>
     </div>
   </div>
 
-  <div class="typing-row">
-    <div class="typing-bub">
-      <div class="td"></div>
-      <div class="td"></div>
-      <div class="td"></div>
+  <!-- MESSAGE 3 -->
+
+  <div class="msg sent" style="animation-delay:1.6s;">
+    <div class="bubble">
+      Oi! Sim moro aqui pertinho 😄
+      <div class="time" id="t3"></div>
     </div>
   </div>
+
+  <!-- MESSAGE 4 -->
+
+  <div class="msg recv" style="animation-delay:2.3s;">
+    <div class="bubble">
+      que ótimo!! posso te mandar umas fotos? 🙈🔥
+      <div class="time" id="t4"></div>
+    </div>
+  </div>
+
+  <!-- PHOTOS -->
+
+  <div class="photos" style="animation-delay:3.1s;">
+
+    <div class="photo">
+      <div class="photo-bg p1"></div>
+
+      <div class="overlay">
+        <div class="lock">🔒</div>
+        <div class="lock-text">foto<br>privada</div>
+      </div>
+    </div>
+
+    <div class="photo">
+      <div class="photo-bg p2"></div>
+
+      <div class="overlay">
+        <div class="lock">🔒</div>
+        <div class="lock-text">foto<br>privada</div>
+      </div>
+    </div>
+
+    <div class="photo">
+      <div class="photo-bg p3"></div>
+
+      <div class="overlay">
+        <div class="lock">🔒</div>
+        <div class="lock-text">foto<br>privada</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MESSAGE 5 -->
+
+  <div class="msg recv" style="animation-delay:3.8s;">
+    <div class="bubble">
+      me chama lá 😅 não consigo mandar tudo aqui
+      <div class="time" id="t5"></div>
+    </div>
+  </div>
+
+  <!-- MESSAGE 6 -->
+
+  <div class="msg recv" style="animation-delay:4.2s;">
+    <div class="bubble">
+      é grátis, rapidinho 💌
+      <div class="time" id="t6"></div>
+    </div>
+  </div>
+
+  <!-- TYPING -->
+
+  <div class="typing" style="animation-delay:4.4s;">
+    <div class="typing-box">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+  </div>
+
 </div>
 
-<!-- BOTTOM CTA -->
+<!-- BOTTOM -->
+
 <div class="bottom">
-  <div class="locked-row">
-    <div class="l-icon" id="cta-icon">📸</div>
-    <div class="l-text">
-      <strong id="locked-text">3 fotos privadas de Mariana</strong>
-      <span id="locked-sub">Desbloqueie grátis para ver tudo</span>
+
+  <div class="locked">
+    <div>📸</div>
+
+    <div>
+      <strong id="locked-name">3 fotos privadas de Mariana</strong>
+      <span>Desbloqueie grátis para ver tudo</span>
     </div>
   </div>
-  <button class="cta" id="cta-btn" type="button" onclick="redirect()">
-  Desbloquear fotos agora 🔥
-</button>
-  <div class="trust">🔒 Gratuito · Sem cartão · Apenas 18+</div>
+
+  <button class="cta" type="button" id="cta-btn">
+    Desbloquear fotos agora 🔥
+  </button>
+
+  <div class="trust">
+    🔒 Gratuito · Sem cartão · Apenas 18+
+  </div>
+
 </div>
 
 <script>
-  // ============================================================
-  // TRACKER URL — ВСТАВЬ СВОЮ ЧИСТУЮ ССЫЛКУ BEMOB
-  // БЕЗ {externalId} и прочих макросов
-  // ============================================================
 
-  const TRACKER_URL = 'https://zrfny.bemobtrcks.com/go/f2760353-e056-4618-b1b0-15e0fefe77e7';
+/* =========================================================
+   ВСТАВЬ СЮДА СВОЮ CLICK URL ИЗ BEMOB
+========================================================= */
 
-  // ============================================================
-  // GET PARAMS
-  // ============================================================
+const TRACKER_URL = 'https://zrfny.bemobtrcks.com/click';
 
-  function getParam(key) {
-    return new URLSearchParams(window.location.search).get(key);
-  }
+/* =========================================================
+   ИМЯ
+========================================================= */
 
-  const girlName = getParam('name') || 'Mariana';
-  const isVideo  = getParam('angle') === 'video';
-
-  // ============================================================
-  // ПОДСТАВЛЯЕМ ИМЯ
-  // ============================================================
-
-  document.getElementById('girl-name').innerText = girlName + ', 23';
-
-  // ============================================================
-  // VIDEO ANGLE
-  // ============================================================
-
-  if (isVideo) {
-
-    document.getElementById('chat-default').style.display = 'none';
-    document.getElementById('chat-video').style.display   = 'block';
-
-    document.getElementById('girl-status').innerText =
-      '● em chamada de vídeo';
-
-    document.getElementById('cta-icon').innerText = '📹';
-
-    document.getElementById('locked-text').innerText =
-      girlName + ' está aguardando na chamada...';
-
-    document.getElementById('locked-sub').innerText =
-      'Conecte seu áudio e vídeo grátis';
-
-    document.getElementById('cta-btn').innerHTML =
-      'Iniciar videochamada agora 🔥';
-
-  } else {
-
-    document.getElementById('locked-text').innerText =
-      '3 fotos privadas de ' + girlName;
-
-  }
-
-  // ============================================================
-  // REAL TIME
-  // ============================================================
-
-  function fmt(d) {
-    const h = d.getHours();
-    const m = d.getMinutes();
-
-    return (h < 10 ? '0' + h : h) +
-      ':' +
-      (m < 10 ? '0' + m : m);
-  }
-
-  const now = new Date();
-
-  const offsets = [5,4,3,2,1,1,1];
-
-  document.querySelectorAll('.t').forEach((el, i) => {
-    el.textContent = fmt(
-      new Date(now - (offsets[i] || 1) * 60000)
-    );
-  });
-
-  document.querySelectorAll('.tv').forEach((el, i) => {
-    el.textContent = fmt(
-      new Date(now - (offsets[i] || 1) * 60000)
-    );
-  });
-
-  // ============================================================
-  // REDIRECT
-  // ============================================================
-
-  function redirect() {
-    // 1. Получаем базовую ссылку
-    const baseUrl = 'https://zrfny.bemobtrcks.com/go/f2760353-e056-4618-b1b0-15e0fefe77e7';
-    
-    // 2. Получаем параметры из адресной строки (например, ?name=Mariana)
-    const params = window.location.search;
-    
-    // 3. Собираем полную ссылку
-    const finalUrl = baseUrl + params;
-    
-    // 4. Принудительный переход
-    window.location.replace(finalUrl); 
-    
-    return false; // Запрещаем браузеру выполнять любые другие действия
-  }
-  
-  // Добавляем к ссылке параметры, которые уже пришли в адресной строке (name=Mariana и т.д.)
-  const params = window.location.search;
-  window.location.href = TRACKER_URL + (params ? (TRACKER_URL.includes('?') ? '&' : '?') + params.substring(1) : '');
+function getParam(name){
+  return new URLSearchParams(window.location.search).get(name);
 }
 
-  // ============================================================
-  // BACK BUTTON
-  // ============================================================
+const girlName = getParam('name') || 'Mariana';
 
-  history.pushState(null, null, location.href);
+document.getElementById('girl-name').innerText = girlName + ', 23';
+document.getElementById('locked-name').innerText =
+'3 fotos privadas de ' + girlName;
 
-  window.addEventListener('popstate', function () {
+/* =========================================================
+   ВРЕМЯ
+========================================================= */
 
-    const params = window.location.search;
+function formatTime(date){
+  let h = date.getHours();
+  let m = date.getMinutes();
 
-    window.location.replace(
-      TRACKER_URL + (params || '')
-    );
+  if(h < 10) h = '0' + h;
+  if(m < 10) m = '0' + m;
 
-  });
+  return h + ':' + m;
+}
 
-  // ============================================================
-  // ПОЯВЛЕНИЕ ФОТО ПО ОЧЕРЕДИ
-  // ============================================================
+const now = new Date();
 
-  const photos = document.querySelectorAll('.photo-wrap');
+document.getElementById('t1').innerText =
+formatTime(new Date(now.getTime() - 5*60000));
 
-  photos.forEach((photo, index) => {
+document.getElementById('t2').innerText =
+formatTime(new Date(now.getTime() - 4*60000));
 
-    photo.style.opacity = '0';
-    photo.style.transform = 'translateY(10px)';
+document.getElementById('t3').innerText =
+formatTime(new Date(now.getTime() - 3*60000));
 
-    setTimeout(() => {
+document.getElementById('t4').innerText =
+formatTime(new Date(now.getTime() - 2*60000));
 
-      photo.style.transition =
-        'all 0.35s ease';
+document.getElementById('t5').innerText =
+formatTime(new Date(now.getTime() - 1*60000));
 
-      photo.style.opacity = '1';
-      photo.style.transform = 'translateY(0)';
+document.getElementById('t6').innerText =
+formatTime(new Date(now.getTime() - 1*60000));
 
-    }, 2100 + (index * 350));
+/* =========================================================
+   REDIRECT
+========================================================= */
 
-  });
+function redirectUser(){
+
+  try{
+
+    const params = window.location.search || '';
+
+    let finalUrl = TRACKER_URL;
+
+    if(params){
+
+      if(TRACKER_URL.includes('?')){
+        finalUrl += '&' + params.substring(1);
+      }else{
+        finalUrl += params;
+      }
+
+    }
+
+    console.log('Redirect:', finalUrl);
+
+    window.location.href = finalUrl;
+
+  }catch(e){
+
+    console.log(e);
+
+  }
+
+}
+
+/* =========================================================
+   BUTTON
+========================================================= */
+
+document.getElementById('cta-btn').addEventListener('click', function(e){
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  redirectUser();
+
+});
+
+/* =========================================================
+   BACKBUTTON
+========================================================= */
+
+history.pushState({}, '', location.href);
+
+window.addEventListener('popstate', function(){
+
+  redirectUser();
+
+});
 
 </script>
 
