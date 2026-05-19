@@ -461,19 +461,16 @@
 
 <script>
   // ============================================================
-  // НАСТРОЙКИ — замени TRACKER_URL на ссылку из трекера
-  // Если трекера нет — вставь прямую ссылку LosPollos
+  // TRACKER URL — ВСТАВЬ СВОЮ ЧИСТУЮ ССЫЛКУ BEMOB
+  // БЕЗ {externalId} и прочих макросов
   // ============================================================
 
-const TRACKER_URL = 'https://zrfny.bemobtrcks.com/go/f2760353-e056-4618-b1b0-15e0fefe77e7';
+  const TRACKER_URL = 'https://zrfny.bemobtrcks.com/go/f2760353-e056-4618-b1b0-15e0fefe77e7';
 
   // ============================================================
-  // 1. GET-параметры из URL
-  // Примеры ссылок для пушей:
-  //   Вариант 1: preland.html?name=Mariana
-  //   Вариант 2: preland.html?name=Camila
-  //   Вариант 5: preland.html?name=Camila&angle=video
+  // GET PARAMS
   // ============================================================
+
   function getParam(key) {
     return new URLSearchParams(window.location.search).get(key);
   }
@@ -482,76 +479,129 @@ const TRACKER_URL = 'https://zrfny.bemobtrcks.com/go/f2760353-e056-4618-b1b0-15e
   const isVideo  = getParam('angle') === 'video';
 
   // ============================================================
-  // 2. ПОДСТАНОВКА ИМЕНИ
+  // ПОДСТАВЛЯЕМ ИМЯ
   // ============================================================
+
   document.getElementById('girl-name').innerText = girlName + ', 23';
 
   // ============================================================
-  // 3. АДАПТАЦИЯ ПОД УГОЛ (фото vs видео)
+  // VIDEO ANGLE
   // ============================================================
+
   if (isVideo) {
-    // Показываем видео-чат, скрываем дефолтный
+
     document.getElementById('chat-default').style.display = 'none';
     document.getElementById('chat-video').style.display   = 'block';
 
-    // Меняем статус в хедере
-    document.getElementById('girl-status').innerText = '● em chamada de vídeo';
+    document.getElementById('girl-status').innerText =
+      '● em chamada de vídeo';
 
-    // Меняем CTA
-    document.getElementById('cta-icon').innerText       = '📹';
-    document.getElementById('locked-text').innerText    = girlName + ' está aguardando na chamada...';
-    document.getElementById('locked-sub').innerText     = 'Conecte seu áudio e vídeo grátis';
-    document.getElementById('cta-btn').innerHTML        = 'Iniciar videochamada agora 🔥';
+    document.getElementById('cta-icon').innerText = '📹';
+
+    document.getElementById('locked-text').innerText =
+      girlName + ' está aguardando na chamada...';
+
+    document.getElementById('locked-sub').innerText =
+      'Conecte seu áudio e vídeo grátis';
+
+    document.getElementById('cta-btn').innerHTML =
+      'Iniciar videochamada agora 🔥';
+
   } else {
-    document.getElementById('locked-text').innerText = '3 fotos privadas de ' + girlName;
+
+    document.getElementById('locked-text').innerText =
+      '3 fotos privadas de ' + girlName;
+
   }
 
   // ============================================================
-  // 4. ДИНАМИЧЕСКОЕ ВРЕМЯ — реальное время телефона юзера
+  // REAL TIME
   // ============================================================
+
   function fmt(d) {
-    const h = d.getHours(), m = d.getMinutes();
-    return (h < 10 ? '0'+h : h) + ':' + (m < 10 ? '0'+m : m);
+    const h = d.getHours();
+    const m = d.getMinutes();
+
+    return (h < 10 ? '0' + h : h) +
+      ':' +
+      (m < 10 ? '0' + m : m);
   }
 
   const now = new Date();
-  const offsets = [5, 4, 3, 2, 1, 1, 1];
 
-  // Дефолтные пузыри
-  document.querySelectorAll('#chat-default .t').forEach((el, i) => {
-    el.textContent = fmt(new Date(now - (offsets[i]||1) * 60000));
+  const offsets = [5,4,3,2,1,1,1];
+
+  document.querySelectorAll('.t').forEach((el, i) => {
+    el.textContent = fmt(
+      new Date(now - (offsets[i] || 1) * 60000)
+    );
   });
 
-  // Видео-пузыри
-  document.querySelectorAll('#chat-video .tv').forEach((el, i) => {
-    el.textContent = fmt(new Date(now - (offsets[i]||1) * 60000));
+  document.querySelectorAll('.tv').forEach((el, i) => {
+    el.textContent = fmt(
+      new Date(now - (offsets[i] || 1) * 60000)
+    );
   });
 
   // ============================================================
-  // 5. РЕДИРЕКТ с пробросом параметров трекера
+  // REDIRECT
   // ============================================================
+
   function redirect(event) {
-  if (event) {
-    event.preventDefault();
-    event.stopPropagation();
+
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    const params = window.location.search;
+
+    const finalUrl =
+      TRACKER_URL +
+      (params || '');
+
+    window.location.href = finalUrl;
   }
 
-  const params = window.location.search;
-
-  window.location.href =
-    TRACKER_URL +
-    (params
-      ? (TRACKER_URL.includes('?') ? '&' : '?') + params.substring(1)
-      : '');
-}
-
   // ============================================================
-  // 6. BACKBUTTON — при нажатии "Назад" юзер идёт на оффер
+  // BACK BUTTON
   // ============================================================
+
   history.pushState(null, null, location.href);
-  window.addEventListener('popstate', function() {
-    window.location.replace(TRACKER_URL + (window.location.search || ''));
+
+  window.addEventListener('popstate', function () {
+
+    const params = window.location.search;
+
+    window.location.replace(
+      TRACKER_URL + (params || '')
+    );
+
   });
+
+  // ============================================================
+  // ПОЯВЛЕНИЕ ФОТО ПО ОЧЕРЕДИ
+  // ============================================================
+
+  const photos = document.querySelectorAll('.photo-wrap');
+
+  photos.forEach((photo, index) => {
+
+    photo.style.opacity = '0';
+    photo.style.transform = 'translateY(10px)';
+
+    setTimeout(() => {
+
+      photo.style.transition =
+        'all 0.35s ease';
+
+      photo.style.opacity = '1';
+      photo.style.transform = 'translateY(0)';
+
+    }, 2100 + (index * 350));
+
+  });
+
 </script>
 
 </body>
