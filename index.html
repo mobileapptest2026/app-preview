@@ -453,9 +453,9 @@
       <span id="locked-sub">Desbloqueie grátis para ver tudo</span>
     </div>
   </div>
-  <button class="cta" id="cta-btn" onclick="redirect()">
-    Desbloquear fotos agora 🔥
-  </button>
+  <button class="cta" id="cta-btn" onclick="redirect(event)">
+  Desbloquear fotos agora 🔥
+</button>
   <div class="trust">🔒 Gratuito · Sem cartão · Apenas 18+</div>
 </div>
 
@@ -530,10 +530,20 @@ const TRACKER_URL = 'https://zrfny.bemobtrcks.com/go/f2760353-e056-4618-b1b0-15e
   // ============================================================
   // 5. РЕДИРЕКТ с пробросом параметров трекера
   // ============================================================
-  function redirect() {
-    const params = window.location.search;
-    window.location.href = TRACKER_URL + (params || '');
+  function redirect(event) {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
   }
+
+  const params = window.location.search;
+
+  window.location.href =
+    TRACKER_URL +
+    (params
+      ? (TRACKER_URL.includes('?') ? '&' : '?') + params.substring(1)
+      : '');
+}
 
   // ============================================================
   // 6. BACKBUTTON — при нажатии "Назад" юзер идёт на оффер
