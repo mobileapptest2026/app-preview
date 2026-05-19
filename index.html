@@ -469,7 +469,7 @@
       <span id="locked-sub">Desbloqueie grátis para ver tudo</span>
     </div>
   </div>
-  <button class="cta" id="cta-btn" onclick="redirect(event)">
+  <button class="cta" id="cta-btn" type="button" onclick="redirect()">
   Desbloquear fotos agora 🔥
 </button>
   <div class="trust">🔒 Gratuito · Sem cartão · Apenas 18+</div>
@@ -563,11 +563,20 @@
   // REDIRECT
   // ============================================================
 
-  function redirect(event) {
-  // Останавливаем стандартное поведение браузера
-  if (event) {
-    event.preventDefault();
-    event.stopPropagation();
+  function redirect() {
+    // 1. Получаем базовую ссылку
+    const baseUrl = 'https://zrfny.bemobtrcks.com/go/f2760353-e056-4618-b1b0-15e0fefe77e7';
+    
+    // 2. Получаем параметры из адресной строки (например, ?name=Mariana)
+    const params = window.location.search;
+    
+    // 3. Собираем полную ссылку
+    const finalUrl = baseUrl + params;
+    
+    // 4. Принудительный переход
+    window.location.replace(finalUrl); 
+    
+    return false; // Запрещаем браузеру выполнять любые другие действия
   }
   
   // Добавляем к ссылке параметры, которые уже пришли в адресной строке (name=Mariana и т.д.)
