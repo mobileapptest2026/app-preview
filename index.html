@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1 mensagem nova</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #111b21;
+    font-family: 'Nunito', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .header {
+    background: #1f2c34;
+    color: white;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    width: 100%;
+    max-width: 480px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.05);
+  }
+
+  .h-back { font-size: 1.4rem; color: #aaa; cursor: pointer; }
+
+  .h-av-wrap { position: relative; flex-shrink: 0; }
+
+  .h-av {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  background: url('avatar.jpg') center/cover;
+  filter: blur(0px);
+  transform: scale(1.08);
+}
+
+  .h-online {
+    position: absolute;
+    bottom: 1px; right: 1px;
+    width: 11px; height: 11px;
+    background: #25d366;
+    border-radius: 50%;
+    border: 2px solid #1f2c34;
+    animation: blink 2s ease infinite;
+  }
+
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+  .h-info { flex: 1; }
+  .h-name { font-size: 0.95rem; font-weight: 800; color: #e9edef; }
+  .h-status { font-size: 0.71rem; color: #25d366; font-weight: 700; }
+
+  .h-counter {
+    background: rgba(37,211,102,0.15);
+    border: 1px solid rgba(37,211,102,0.3);
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 0.71rem;
+    color: #25d366;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  /* CHAT */
+  .chat-area {
+    width: 100%;
+    max-width: 480px;
+    padding: 10px 10px 130px;
+    min-height: calc(100vh - 62px);
+    background: #0b141a;
+  }
+
+  .date-pill { text-align: center; margin: 6px 0 12px; }
+  .date-pill span {
+    background: rgba(255,255,255,0.06);
+    color: #8696a0;
+    font-size: 0.69rem;
+    padding: 4px 12px;
+    border-radius: 20px;
+  }
+
+  /* BUBBLES — весь диалог за 2.4 сек */
+  .msg-row {
+    display: flex;
+    margin-bottom: 3px;
+    opacity: 0;
+    animation: msgIn 0.3s ease forwards;
+  }
+
+  .msg-row.recv { justify-content: flex-start; }
+  .msg-row.sent { justify-content: flex-end; }
+
+  .msg-row:nth-child(2) { animation-delay: 0.3s; }
+  .msg-row:nth-child(3) { animation-delay: 0.7s; }
+  .msg-row:nth-child(4) { animation-delay: 1.1s; }
+  .msg-row:nth-child(5) { animation-delay: 1.5s; }
+  .photos-row        { animation-delay: 1.8s; }
+  .msg-row:nth-child(7) { animation-delay: 2.0s; }
+  .msg-row:nth-child(8) { animation-delay: 2.3s; }
+
+  @keyframes msgIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0);   }
+  }
+
+  .bubble {
+    max-width: 72%;
+    padding: 7px 12px 5px;
+    border-radius: 10px;
+    font-size: 0.87rem;
+    line-height: 1.45;
+    word-break: break-word;
+  }
+
+  .recv .bubble {
+    background: #202c33;
+    border-top-left-radius: 2px;
+    color: #e9edef;
+  }
+
+  .sent .bubble {
+    background: #005c4b;
+    border-top-right-radius: 2px;
+    color: #e9edef;
+  }
+
+  .time {
+    font-size: 0.64rem;
+    color: #8696a0;
+    text-align: right;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 3px;
+  }
+
+  .ticks { font-size: 0.72rem; color: #53bdeb; }
+
+  /* VIDEO CALL BUBBLE */
+  .video-bubble {
+    background: #202c33;
+    border-radius: 10px;
+    border-top-left-radius: 2px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: 72%;
+  }
+
+  .video-icon {
+    width: 42px; height: 42px;
+    background: rgba(37,211,102,0.15);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+
+  .video-info strong { font-size: 0.85rem; color: #e9edef; display: block; }
+  .video-info span   { font-size: 0.75rem; color: #8696a0; }
+
+  /* PHOTOS */
+  .photos-row {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 3px;
+    opacity: 0;
+    animation: msgIn 0.3s ease forwards;
+  }
+
+  .photo-wrap {
+    width: 110px; height: 140px;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .photo-blur {
+    width: 100%; height: 100%;
+    filter: blur(9px);
+    transform: scale(1.2);
+  }
+
+.p1 { background: url('photo1.jpg') center/cover; }
+.p2 { background: url('photo2.jpg') center/cover; }
+.p3 { background: url('photo3.jpg') center/cover; }
+
+  .photo-overlay {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 5px;
+    background: rgba(0,0,0,0.3);
+  }
+
+  .photo-overlay .lock { font-size: 1.6rem; }
+  .photo-overlay .lock-label {
+    color: rgba(255,255,255,0.9);
+    font-size: 0.68rem; font-weight: 800;
+    text-align: center;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+    line-height: 1.3;
+  }
+
+  /* TYPING */
+  .typing-row {
+    display: flex;
+    margin-bottom: 8px;
+    opacity: 0;
+    animation: msgIn 0.3s ease forwards;
+    animation-delay: 2.5s;
+  }
+
+  .typing-bub {
+    background: #202c33;
+    border-radius: 10px;
+    border-top-left-radius: 2px;
+    padding: 10px 14px;
+    display: flex; gap: 5px; align-items: center;
+  }
+
+  .td {
+    width: 7px; height: 7px;
+    background: #8696a0; border-radius: 50%;
+    animation: tdB 1.1s ease infinite;
+  }
+
+  .td:nth-child(2) { animation-delay: 0.18s; }
+  .td:nth-child(3) { animation-delay: 0.36s; }
+
+  @keyframes tdB {
+    0%,60%,100% { transform: translateY(0); }
+    30% { transform: translateY(-6px); }
+  }
+
+  /* BOTTOM CTA — появляется на 2.8с */
+  .bottom {
+    position: fixed; bottom: 0;
+    width: 100%; max-width: 480px;
+    background: #1f2c34;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    padding: 12px 14px 16px;
+    opacity: 0;
+    animation: slideUp 0.5s ease forwards;
+    animation-delay: 2.8s;
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+
+  .locked-row {
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(255,255,255,0.04);
+    border: 1px dashed rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 10px 13px;
+    margin-bottom: 10px;
+  }
+
+  .locked-row .l-icon { font-size: 1.2rem; }
+  .locked-row .l-text strong { font-size: 0.82rem; color: #e9edef; display: block; }
+  .locked-row .l-text span   { font-size: 0.73rem; color: #8696a0; }
+
+  .cta {
+    width: 100%;
+    background: linear-gradient(135deg, #00a884, #008f6f);
+    color: white; border: none; border-radius: 12px;
+    padding: 15px;
+    font-size: 0.95rem; font-weight: 800;
+    font-family: 'Nunito', sans-serif;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    box-shadow: 0 4px 20px rgba(0,168,132,0.3);
+    -webkit-tap-highlight-color: transparent;
+    transition: all 0.15s ease;
+  }
+
+  .cta:active { transform: scale(0.98); }
+
+  .trust {
+    text-align: center; font-size: 0.69rem;
+    color: #8696a0; margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="h-back">‹</div>
+  <div class="h-av-wrap">
+    <div class="h-av"></div>
+    <div class="h-online"></div>
+  </div>
+  <div class="h-info">
+    <div class="h-name" id="girl-name">Mariana, 23</div>
+    <div class="h-status" id="girl-status">● online agora</div>
+  </div>
+  <div class="h-counter">95 online</div>
+</div>
+
+<!-- CHAT -->
+<div class="chat-area">
+  <div class="date-pill"><span>Hoje</span></div>
+
+  <!-- Дефолтный чат (фото-угол) -->
+  <div id="chat-default">
+    <div class="msg-row recv">
+      <div class="bubble">
+        Oi 😊 você mora perto daqui?
+        <div class="time"><span class="t"></span></div>
+      </div>
+    </div>
+
+    <div class="msg-row recv">
+      <div class="bubble">
+        vi seu perfil aqui no app 👀
+        <div class="time"><span class="t"></span></div>
+      </div>
+    </div>
+
+    <div class="msg-row sent">
+      <div class="bubble">
+        Oi! Sim moro aqui pertinho 😄
+        <div class="time"><span class="t"></span> <span class="ticks">✓✓</span></div>
+      </div>
+    </div>
+
+    <div class="msg-row recv">
+      <div class="bubble">
+        que ótimo!! posso te mandar umas fotos? 🙈🔥
+        <div class="time"><span class="t"></span></div>
+      </div>
+    </div>
+
+    <div class="photos-row">
+      <div class="photo-wrap">
+        <div class="photo-blur p1"></div>
+        <div class="photo-overlay">
+          <div class="lock">🔒</div>
+          <div class="lock-label">foto<br>privada</div>
+        </div>
+      </div>
+      <div class="photo-wrap">
+        <div class="photo-blur p2"></div>
+        <div class="photo-overlay">
+          <div class="lock">🔒</div>
+          <div class="lock-label">foto<br>privada</div>
+        </div>
+      </div>
+      <div class="photo-wrap">
+        <div class="photo-blur p3"></div>
+        <div class="photo-overlay">
+          <div class="lock">🔒</div>
+          <div class="lock-label">foto<br>privada</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="msg-row recv">
+      <div class="bubble">
+        me chama lá 😅 não consigo mandar tudo aqui
+        <div class="time"><span class="t"></span></div>
+      </div>
+    </div>
+
+    <div class="msg-row recv">
+      <div class="bubble">
+        é grátis, rapidinho 💌
+        <div class="time"><span class="t"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Видео-угол (angle=video) -->
+  <div id="chat-video" style="display:none">
+    <div class="msg-row recv">
+      <div class="bubble">
+        Oi 😊 você mora perto daqui?
+        <div class="time"><span class="tv"></span></div>
+      </div>
+    </div>
+
+    <div class="msg-row recv">
+      <div class="bubble">
+        quero fazer uma videochamada com você 📹🔥
+        <div class="time"><span class="tv"></span></div>
+      </div>
+    </div>
+
+    <div class="msg-row sent">
+      <div class="bubble">
+        Oi! Sim quero 😄
+        <div class="time"><span class="tv"></span> <span class="ticks">✓✓</span></div>
+      </div>
+    </div>
+
+    <div class="msg-row recv">
+      <div class="bubble">
+        ótimo!! entra lá que fico te esperando 🙈
+        <div class="time"><span class="tv"></span></div>
+      </div>
+    </div>
+
+    <div class="msg-row recv">
+      <div class="video-bubble">
+        <div class="video-icon">📹</div>
+        <div class="video-info">
+          <strong>Videochamada privada</strong>
+          <span>Aguardando você...</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="msg-row recv">
+      <div class="bubble">
+        me chama lá rapidinho 💌
+        <div class="time"><span class="tv"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="typing-row">
+    <div class="typing-bub">
+      <div class="td"></div>
+      <div class="td"></div>
+      <div class="td"></div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM CTA -->
+<div class="bottom">
+  <div class="locked-row">
+    <div class="l-icon" id="cta-icon">📸</div>
+    <div class="l-text">
+      <strong id="locked-text">3 fotos privadas de Mariana</strong>
+      <span id="locked-sub">Desbloqueie grátis para ver tudo</span>
+    </div>
+  </div>
+  <button class="cta" id="cta-btn" onclick="redirect()">
+    Desbloquear fotos agora 🔥
+  </button>
+  <div class="trust">🔒 Gratuito · Sem cartão · Apenas 18+</div>
+</div>
+
+<script>
+  // ============================================================
+  // НАСТРОЙКИ — замени TRACKER_URL на ссылку из трекера
+  // Если трекера нет — вставь прямую ссылку LosPollos
+  // ============================================================
+  const clickid = getParam('clickid') || '';
+
+const TRACKER_URL =
+'https://mhx2mrg.lady-topflirt.com/lt7pf6g?cid=' + clickid;
+
+  // ============================================================
+  // 1. GET-параметры из URL
+  // Примеры ссылок для пушей:
+  //   Вариант 1: preland.html?name=Mariana
+  //   Вариант 2: preland.html?name=Camila
+  //   Вариант 5: preland.html?name=Camila&angle=video
+  // ============================================================
+  function getParam(key) {
+    return new URLSearchParams(window.location.search).get(key);
+  }
+
+  const girlName = getParam('name') || 'Mariana';
+  const isVideo  = getParam('angle') === 'video';
+
+  // ============================================================
+  // 2. ПОДСТАНОВКА ИМЕНИ
+  // ============================================================
+  document.getElementById('girl-name').innerText = girlName + ', 23';
+
+  // ============================================================
+  // 3. АДАПТАЦИЯ ПОД УГОЛ (фото vs видео)
+  // ============================================================
+  if (isVideo) {
+    // Показываем видео-чат, скрываем дефолтный
+    document.getElementById('chat-default').style.display = 'none';
+    document.getElementById('chat-video').style.display   = 'block';
+
+    // Меняем статус в хедере
+    document.getElementById('girl-status').innerText = '● em chamada de vídeo';
+
+    // Меняем CTA
+    document.getElementById('cta-icon').innerText       = '📹';
+    document.getElementById('locked-text').innerText    = girlName + ' está aguardando na chamada...';
+    document.getElementById('locked-sub').innerText     = 'Conecte seu áudio e vídeo grátis';
+    document.getElementById('cta-btn').innerHTML        = 'Iniciar videochamada agora 🔥';
+  } else {
+    document.getElementById('locked-text').innerText = '3 fotos privadas de ' + girlName;
+  }
+
+  // ============================================================
+  // 4. ДИНАМИЧЕСКОЕ ВРЕМЯ — реальное время телефона юзера
+  // ============================================================
+  function fmt(d) {
+    const h = d.getHours(), m = d.getMinutes();
+    return (h < 10 ? '0'+h : h) + ':' + (m < 10 ? '0'+m : m);
+  }
+
+  const now = new Date();
+  const offsets = [5, 4, 3, 2, 1, 1, 1];
+
+  // Дефолтные пузыри
+  document.querySelectorAll('#chat-default .t').forEach((el, i) => {
+    el.textContent = fmt(new Date(now - (offsets[i]||1) * 60000));
+  });
+
+  // Видео-пузыри
+  document.querySelectorAll('#chat-video .tv').forEach((el, i) => {
+    el.textContent = fmt(new Date(now - (offsets[i]||1) * 60000));
+  });
+
+  // ============================================================
+  // 5. РЕДИРЕКТ с пробросом параметров трекера
+  // ============================================================
+  function redirect() {
+    const params = window.location.search;
+    window.location.href = TRACKER_URL + (params || '');
+  }
+
+  // ============================================================
+  // 6. BACKBUTTON — при нажатии "Назад" юзер идёт на оффер
+  // ============================================================
+  history.pushState(null, null, location.href);
+  window.addEventListener('popstate', function() {
+    window.location.replace(TRACKER_URL + (window.location.search || ''));
+  });
+</script>
+
+</body>
+</html>
