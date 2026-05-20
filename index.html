@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>1 mensagem nova</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  background:#0b141a;
+  font-family:'Nunito',sans-serif;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+/* HEADER */
+
+.header{
+  width:100%;
+  max-width:480px;
+  background:#1f2c34;
+  padding:10px 14px;
+  display:flex;
+  align-items:center;
+  gap:11px;
+  position:sticky;
+  top:0;
+  z-index:100;
+}
+
+.h-back{
+  color:#aaa;
+  font-size:1.5rem;
+}
+
+.h-av-wrap{
+  position:relative;
+}
+
+.h-av{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  background:url('avatar.jpg') center/cover;
+}
+
+.h-online{
+  position:absolute;
+  bottom:0;
+  right:0;
+  width:11px;
+  height:11px;
+  border-radius:50%;
+  background:#25d366;
+  border:2px solid #1f2c34;
+}
+
+.h-info{
+  flex:1;
+}
+
+.h-name{
+  color:#fff;
+  font-weight:800;
+  font-size:0.95rem;
+}
+
+.h-status{
+  color:#25d366;
+  font-size:0.72rem;
+  font-weight:700;
+}
+
+.h-counter{
+  background:rgba(37,211,102,0.12);
+  border:1px solid rgba(37,211,102,0.3);
+  color:#25d366;
+  font-size:0.72rem;
+  padding:4px 10px;
+  border-radius:20px;
+  font-weight:800;
+}
+
+/* CHAT */
+
+.chat{
+  width:100%;
+  max-width:480px;
+  padding:10px 10px 140px;
+}
+
+.date{
+  text-align:center;
+  margin-bottom:12px;
+}
+
+.date span{
+  background:rgba(255,255,255,0.06);
+  color:#8696a0;
+  font-size:0.7rem;
+  padding:5px 12px;
+  border-radius:20px;
+}
+
+/* MESSAGE */
+
+.msg{
+  display:flex;
+  margin-bottom:6px;
+  opacity:0;
+  transform:translateY(10px);
+  animation:show .35s forwards;
+}
+
+.recv{
+  justify-content:flex-start;
+}
+
+.sent{
+  justify-content:flex-end;
+}
+
+@keyframes show{
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+.bubble{
+  max-width:74%;
+  padding:8px 12px 6px;
+  border-radius:10px;
+  font-size:0.88rem;
+  line-height:1.45;
+}
+
+.recv .bubble{
+  background:#202c33;
+  color:#e9edef;
+  border-top-left-radius:2px;
+}
+
+.sent .bubble{
+  background:#005c4b;
+  color:#fff;
+  border-top-right-radius:2px;
+}
+
+.time{
+  font-size:0.64rem;
+  color:#8696a0;
+  margin-top:3px;
+  text-align:right;
+}
+
+/* PHOTOS */
+
+.photos{
+  display:flex;
+  gap:6px;
+  margin-bottom:6px;
+  opacity:0;
+  transform:translateY(10px);
+  animation:show .35s forwards;
+}
+
+.photo{
+  width:110px;
+  height:140px;
+  border-radius:10px;
+  overflow:hidden;
+  position:relative;
+}
+
+.photo-bg{
+  width:100%;
+  height:100%;
+  filter:blur(9px);
+  transform:scale(1.2);
+}
+
+.p1{
+  background:url('photo1.jpg') center/cover;
+}
+
+.p2{
+  background:url('photo2.jpg') center/cover;
+}
+
+.p3{
+  background:url('photo3.jpg') center/cover;
+}
+
+.overlay{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,0.3);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  gap:5px;
+}
+
+.lock{
+  font-size:1.6rem;
+}
+
+.lock-text{
+  color:#fff;
+  font-size:0.7rem;
+  font-weight:800;
+  text-align:center;
+}
+
+/* TYPING */
+
+.typing{
+  display:flex;
+  margin-top:6px;
+  opacity:0;
+  transform:translateY(10px);
+  animation:show .35s forwards;
+}
+
+.typing-box{
+  background:#202c33;
+  padding:10px 14px;
+  border-radius:10px;
+  display:flex;
+  gap:5px;
+}
+
+.dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:#8696a0;
+  animation:bounce 1s infinite;
+}
+
+.dot:nth-child(2){
+  animation-delay:.15s;
+}
+
+.dot:nth-child(3){
+  animation-delay:.3s;
+}
+
+@keyframes bounce{
+  0%,60%,100%{
+    transform:translateY(0);
+  }
+  30%{
+    transform:translateY(-5px);
+  }
+}
+
+/* BOTTOM */
+
+.bottom{
+  position:fixed;
+  bottom:0;
+  width:100%;
+  max-width:480px;
+  background:#1f2c34;
+  padding:12px 14px 16px;
+  border-top:1px solid rgba(255,255,255,0.05);
+  opacity:0;
+  transform:translateY(100%);
+  animation:bottomShow .4s forwards;
+  animation-delay:2.5s;
+}
+
+@keyframes bottomShow{
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+.locked{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  background:rgba(255,255,255,0.04);
+  border:1px dashed rgba(255,255,255,0.12);
+  border-radius:10px;
+  padding:10px 12px;
+  margin-bottom:10px;
+}
+
+.locked strong{
+  display:block;
+  color:#fff;
+  font-size:0.82rem;
+}
+
+.locked span{
+  color:#8696a0;
+  font-size:0.72rem;
+}
+
+.cta{
+  width:100%;
+  border:none;
+  border-radius:12px;
+  background:linear-gradient(135deg,#00a884,#008f6f);
+  color:#fff;
+  font-size:0.95rem;
+  font-weight:800;
+  padding:15px;
+  cursor:pointer;
+}
+
+.trust{
+  text-align:center;
+  color:#8696a0;
+  font-size:0.68rem;
+  margin-top:8px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+
+<div class="header">
+
+  <div class="h-back">‹</div>
+
+  <div class="h-av-wrap">
+    <div class="h-av"></div>
+    <div class="h-online"></div>
+  </div>
+
+  <div class="h-info">
+    <div class="h-name" id="girl-name">Mariana, 23</div>
+    <div class="h-status">● online agora</div>
+  </div>
+
+  <div class="h-counter">95 online</div>
+
+</div>
+
+<!-- CHAT -->
+
+<div class="chat">
+
+  <div class="date">
+    <span>Hoje</span>
+  </div>
+
+  <!-- MESSAGE 1 -->
+
+  <div class="msg recv" style="animation-delay:.2s;">
+    <div class="bubble">
+      Oi 😊 você mora perto daqui?
+      <div class="time" id="t1"></div>
+    </div>
+  </div>
+
+  <!-- MESSAGE 2 -->
+
+  <div class="msg recv" style="animation-delay:.5s;">
+    <div class="bubble">
+      vi seu perfil aqui no app 👀
+      <div class="time" id="t2"></div>
+    </div>
+  </div>
+
+  <!-- MESSAGE 3 -->
+
+  <div class="msg sent" style="animation-delay:.9s;">
+    <div class="bubble">
+      Oi! Sim moro aqui pertinho 😄
+      <div class="time" id="t3"></div>
+    </div>
+  </div>
+
+  <!-- MESSAGE 4 -->
+
+  <div class="msg recv" style="animation-delay:1.3s;">
+    <div class="bubble">
+      que ótimo!! posso te mandar umas fotos? 🙈🔥
+      <div class="time" id="t4"></div>
+    </div>
+  </div>
+
+  <!-- PHOTOS -->
+
+  <div class="photos" style="animation-delay:1.7s;">
+
+    <div class="photo">
+      <div class="photo-bg p1"></div>
+
+      <div class="overlay">
+        <div class="lock">🔒</div>
+        <div class="lock-text">foto<br>privada</div>
+      </div>
+    </div>
+
+    <div class="photo">
+      <div class="photo-bg p2"></div>
+
+      <div class="overlay">
+        <div class="lock">🔒</div>
+        <div class="lock-text">foto<br>privada</div>
+      </div>
+    </div>
+
+    <div class="photo">
+      <div class="photo-bg p3"></div>
+
+      <div class="overlay">
+        <div class="lock">🔒</div>
+        <div class="lock-text">foto<br>privada</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MESSAGE 5 -->
+
+  <div class="msg recv" style="animation-delay:2.0s;">
+    <div class="bubble">
+      me chama lá 😅 não consigo mandar tudo aqui
+      <div class="time" id="t5"></div>
+    </div>
+  </div>
+
+  <!-- MESSAGE 6 -->
+
+  <div class="msg recv" style="animation-delay:2.2s;">
+    <div class="bubble">
+      é grátis, rapidinho 💌
+      <div class="time" id="t6"></div>
+    </div>
+  </div>
+
+  <!-- TYPING -->
+
+  <div class="typing" style="animation-delay:2.3s;">
+    <div class="typing-box">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM -->
+
+<div class="bottom">
+
+  <div class="locked">
+    <div>📸</div>
+
+    <div>
+      <strong id="locked-name">3 fotos privadas de Mariana</strong>
+      <span>Desbloqueie grátis para ver tudo</span>
+    </div>
+  </div>
+
+  <button class="cta" type="button" id="cta-btn">
+    Desbloquear fotos agora 🔥
+  </button>
+
+  <div class="trust">
+    🔒 Gratuito · Sem cartão · Apenas 18+
+  </div>
+
+</div>
+
+<script>
+
+/* =========================================================
+   ССЫЛКА НА ОФФЕР LOSPOLLOS
+========================================================= */
+
+const OFFER_URL = 'https://mhx2mrg.lady-topflirt.com/lt7pf6g';
+
+/* =========================================================
+   ИМЯ
+========================================================= */
+
+function getParam(name){
+  return new URLSearchParams(window.location.search).get(name);
+}
+
+const girlName = getParam('name') || 'Mariana';
+
+document.getElementById('girl-name').innerText = girlName + ', 23';
+document.getElementById('locked-name').innerText =
+'3 fotos privadas de ' + girlName;
+
+/* =========================================================
+   ВРЕМЯ
+========================================================= */
+
+function formatTime(date){
+  let h = date.getHours();
+  let m = date.getMinutes();
+
+  if(h < 10) h = '0' + h;
+  if(m < 10) m = '0' + m;
+
+  return h + ':' + m;
+}
+
+const now = new Date();
+
+document.getElementById('t1').innerText =
+formatTime(new Date(now.getTime() - 5*60000));
+
+document.getElementById('t2').innerText =
+formatTime(new Date(now.getTime() - 4*60000));
+
+document.getElementById('t3').innerText =
+formatTime(new Date(now.getTime() - 3*60000));
+
+document.getElementById('t4').innerText =
+formatTime(new Date(now.getTime() - 2*60000));
+
+document.getElementById('t5').innerText =
+formatTime(new Date(now.getTime() - 1*60000));
+
+document.getElementById('t6').innerText =
+formatTime(new Date(now.getTime() - 1*60000));
+
+/* =========================================================
+   REDIRECT
+   BeMob передаёт click ID как параметр bm_cid в URL преленда.
+   Мы берём его и передаём в LosPollos как cid=
+   Схема: PushHouse → BeMob → Преленд(?bm_cid=XXX) → LosPollos(?cid=XXX)
+========================================================= */
+
+function redirectUser(){
+
+  try{
+
+    // BeMob передаёт все данные через параметр bemobdata
+    const bemobdata = getParam('bemobdata') || '';
+
+    // Строим финальную ссылку на оффер
+    let finalUrl = OFFER_URL;
+
+    if(bemobdata){
+      finalUrl += '?cid=' + encodeURIComponent(bemobdata);
+    }
+
+    console.log('Redirect to offer:', finalUrl);
+
+    window.location.href = finalUrl;
+
+  }catch(e){
+
+    console.log(e);
+    window.location.href = OFFER_URL;
+
+  }
+
+}
+
+/* =========================================================
+   BUTTON
+========================================================= */
+
+document.getElementById('cta-btn').addEventListener('click', function(e){
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  redirectUser();
+
+});
+
+/* =========================================================
+   BACKBUTTON
+========================================================= */
+
+history.pushState({}, '', location.href);
+
+window.addEventListener('popstate', function(){
+
+  redirectUser();
+
+});
+
+</script>
+
+</body>
+</html>
