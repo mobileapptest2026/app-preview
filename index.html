@@ -548,18 +548,23 @@ formatTime(new Date(now.getTime() - 1*60000));
    Схема: PushHouse → BeMob → Преленд(?bm_cid=XXX) → LosPollos(?cid=XXX)
 ========================================================= */
 
+/* =========================================================
+   REDIRECT
+========================================================= */
+
 function redirectUser(){
 
   try{
 
-    // BeMob передаёт все данные через параметр bemobdata
-    const bemobdata = getParam('bemobdata') || '';
+    // Получаем click id от BeMob
+    const bm_cid = getParam('bm_cid') || '';
 
-    // Строим финальную ссылку на оффер
+    // Финальная ссылка
     let finalUrl = OFFER_URL;
 
-    if(bemobdata){
-      finalUrl += '?cid=' + encodeURIComponent(bemobdata);
+    // Передаем clickid в LosPollos
+    if(bm_cid){
+      finalUrl += '?cid=' + encodeURIComponent(bm_cid);
     }
 
     console.log('Redirect to offer:', finalUrl);
