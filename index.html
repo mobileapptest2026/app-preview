@@ -159,23 +159,22 @@ document.getElementById('t6').innerText = fmt(new Date(now - 1*60000));
 // Схема: PushHouse → BeMob → Преленд(?bemobdata=XXX) → LosPollos(?cid=XXX)
 // ============================================================
 function redirectUser(){
-  try{
-    // Берём bemobdata который BeMob добавляет к URL преленда
-    const bemobdata = getParam('bemobdata') || '';
-
+  try {
+    // BeMob передаёт click_id, а не bemobdata
+    const clickId = getParam('click_id') || getParam('bemobdata') || '';
+    
     let finalUrl = OFFER_URL;
-
-    if(bemobdata){
-      finalUrl += '?cid=' + encodeURIComponent(bemobdata);
+    
+    if(clickId){
+      finalUrl += '?cid=' + encodeURIComponent(clickId);
     }
-
+    
     window.location.href = finalUrl;
-
-  }catch(e){
-    // Запасной редирект без параметров
+  } catch(e) {
     window.location.href = OFFER_URL;
   }
 }
+
 
 // ============================================================
 // КНОПКА
