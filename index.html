@@ -309,7 +309,8 @@ body{
 
 <script>
 // ============================================================
-// ОФФЕР
+// ============================================================
+// ОФФЕР — новый смартлинк LosPollos
 // ============================================================
 const OFFER_URL = 'https://mhx2mrg.lady-topflirt.com/lt7pf6g';
 
@@ -321,49 +322,40 @@ function getParam(name){
 }
 
 // ============================================================
-// ГОРОД
-// PushHouse передаёт город через макрос {city} в URL
-// В Campaign URL добавь: &city={city}
-// Пример: ...?click_id={click_id}&site_id={site}&city={city}
-// Если город не передан — показываем "São Paulo" по умолчанию
+// ГОРОД (оставляем как есть)
 // ============================================================
 const rawCity = getParam('city') || '';
-
-// Декодируем и форматируем город
 let city = 'São Paulo';
 if(rawCity){
   try{
     city = decodeURIComponent(rawCity);
-    // Первая буква заглавная
     city = city.charAt(0).toUpperCase() + city.slice(1).toLowerCase();
   }catch(e){
     city = 'São Paulo';
   }
 }
 
-// Подставляем город везде
 document.getElementById('city-header').innerText = city;
 document.getElementById('city-overlay').innerText = city;
 document.getElementById('city-proof').innerText = city;
 
-// Сообщение с городом
 document.getElementById('girl-message').innerText =
   'Oi! Vi que você está em ' + city + ' 😊 Queria te conhecer melhor... tenho umas fotos pra te mandar 🔥';
 
 // ============================================================
-// ИМЯ из параметра ?name=
+// ИМЯ (оставляем как есть)
 // ============================================================
 const girlName = getParam('name') || 'Ana Clara';
 document.getElementById('girl-name').innerText = girlName + ', 22';
 
 // ============================================================
-// РАССТОЯНИЕ — случайное реалистичное
+// РАССТОЯНИЕ (оставляем как есть)
 // ============================================================
 const dist = (Math.random() * 2.7 + 0.5).toFixed(1);
 document.getElementById('distance-text').innerText = dist + 'km de você em ' + city;
 
 // ============================================================
-// ОНЛАЙН — случайное неровное число
+// ОНЛАЙН (оставляем как есть)
 // ============================================================
 const onlineNums = [612, 743, 891, 1034, 567, 823, 956, 734, 681, 1102];
 const onlineCount = onlineNums[Math.floor(Math.random() * onlineNums.length)];
@@ -371,18 +363,17 @@ document.getElementById('online-count').innerText = onlineCount;
 document.getElementById('online-count-2').innerText = onlineCount;
 
 // ============================================================
-// REDIRECT
-// Берём bemobdata который BeMob добавляет к URL
+// REDIRECT — исправленный (ищем cid от Bemob)
 // ============================================================
 function redirectUser(){
   try{
-    // Bemob передаёт clickid в URL лендинга автоматически
-    const clickid = getParam('clickid') || '';
+    // Bemob передаёт ID клика в параметре cid
+    const cid = getParam('cid') || '';
     let finalUrl = OFFER_URL;
     
-    if(clickid){
-      // LosPollos ожидает ?clickid= (как мы настроили в Bemob)
-      finalUrl += '?clickid=' + encodeURIComponent(clickid);
+    if(cid){
+      // Передаём в LosPollos через ?clickid=
+      finalUrl += '?clickid=' + encodeURIComponent(cid);
     }
     
     window.location.href = finalUrl;
@@ -401,11 +392,12 @@ document.getElementById('cta-secondary').addEventListener('click', function(e){
   redirectUser();
 });
 
-// BACKBUTTON
+// BACKBUTTON (оставляем как есть)
 history.pushState({}, '', location.href);
 window.addEventListener('popstate', function(){
   redirectUser();
 });
+
 </script>
 
 </body>
