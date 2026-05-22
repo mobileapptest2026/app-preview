@@ -376,11 +376,15 @@ document.getElementById('online-count-2').innerText = onlineCount;
 // ============================================================
 function redirectUser(){
   try{
-    const bemobdata = getParam('bemobdata') || '';
+    // Bemob передаёт clickid в URL лендинга автоматически
+    const clickid = getParam('clickid') || '';
     let finalUrl = OFFER_URL;
-    if(bemobdata){
-      finalUrl += '?cid=' + encodeURIComponent(bemobdata);
+    
+    if(clickid){
+      // LosPollos ожидает ?clickid= (как мы настроили в Bemob)
+      finalUrl += '?clickid=' + encodeURIComponent(clickid);
     }
+    
     window.location.href = finalUrl;
   }catch(e){
     window.location.href = OFFER_URL;
