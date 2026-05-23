@@ -2,465 +2,759 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Nova mensagem</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chama — Conheça pessoas perto de você</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;}
+  :root {
+    --red: #FF2D55;
+    --pink: #FF6B9D;
+    --hot: #FF4F7B;
+    --bg: #0A0A0F;
+    --surface: #12121A;
+    --card: #1A1A26;
+    --border: rgba(255,45,85,0.15);
+    --text: #F5F5FF;
+    --muted: rgba(245,245,255,0.45);
+  }
 
-body{
-  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 40%, #e8293a 100%);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  padding:16px;
-}
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-.card{
-  background: linear-gradient(180deg, #fff9f5 0%, #ffffff 100%);
-  border-radius:24px;
-  width:100%;
-  max-width:380px;
-  overflow:hidden;
-  box-shadow:0 25px 80px rgba(232,41,58,0.4);
-  border: 2px solid rgba(255,107,53,0.15);
-}
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
 
-/* HEADER */
-.header{
-  background: linear-gradient(135deg, #e8293a 0%, #ff6b35 100%);
-  padding:14px 18px;
-  color:#fff;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-}
+  h1, h2, h3, .brand { font-family: 'Syne', sans-serif; }
 
-.header-left{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  font-size:14px;
-  font-weight:700;
-}
+  /* ── BACKGROUND GLOW ── */
+  .bg-glow {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 10%, rgba(255,45,85,0.18) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 60% at 80% 80%, rgba(255,107,157,0.12) 0%, transparent 55%),
+      var(--bg);
+  }
 
-.header-badge{
-  background:rgba(255,255,255,0.25);
-  border-radius:20px;
-  padding:4px 12px;
-  font-size:13px;
-  font-weight:800;
-  display:flex;
-  align-items:center;
-  gap:5px;
-}
+  /* ── SCREEN SYSTEM ── */
+  .screen {
+    position: relative; z-index: 1;
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 24px 20px 90px;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.45s ease;
+    display: none;
+  }
+  .screen.active {
+    display: flex;
+    opacity: 1; pointer-events: all;
+    animation: fadeUp 0.5s ease forwards;
+  }
+  @keyframes fadeUp {
+    from { opacity:0; transform: translateY(28px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
 
-.pulse{
-  width:8px;
-  height:8px;
-  background:#4ade80;
-  border-radius:50%;
-  animation:pulse 1.5s infinite;
-  flex-shrink:0;
-}
+  /* ── PROGRESS BAR ── */
+  .progress-wrap {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    height: 3px; background: rgba(255,255,255,0.06);
+  }
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--red), var(--pink));
+    transition: width 0.55s cubic-bezier(.4,0,.2,1);
+    box-shadow: 0 0 12px var(--red);
+  }
 
-@keyframes pulse{
-  0%,100%{opacity:1;transform:scale(1);}
-  50%{opacity:0.4;transform:scale(1.3);}
-}
+  /* ── GLASS CARD ── */
+  .glass {
+    background: rgba(26,26,38,0.75);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+  }
 
-/* URGENCY BAR */
-.urgency-bar{
-  background: linear-gradient(90deg, #ff6b35 0%, #f7931e 100%);
-  padding:10px 16px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
-  color:#fff;
-  font-size:13px;
-  font-weight:800;
-  letter-spacing:0.5px;
-}
+  /* ── BUTTONS ── */
+  .btn-primary {
+    display: block; width: 100%;
+    background: linear-gradient(135deg, var(--red) 0%, var(--pink) 100%);
+    color: #fff; font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 17px;
+    letter-spacing: 0.02em;
+    padding: 17px 24px; border-radius: 16px;
+    border: none; cursor: pointer;
+    box-shadow: 0 8px 32px rgba(255,45,85,0.38);
+    transition: transform 0.18s, box-shadow 0.18s, filter 0.18s;
+    text-align: center;
+  }
+  .btn-primary:active { transform: scale(0.97); box-shadow: 0 4px 16px rgba(255,45,85,0.25); }
+  .btn-primary:hover  { filter: brightness(1.08); transform: translateY(-2px); }
 
-/* DISTANCE BAR */
-.distance-bar{
-  background:#fff3f0;
-  padding:12px 18px;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  color:#e8293a;
-  font-size:14px;
-  font-weight:700;
-  border-bottom:2px solid #ffe0d6;
-}
+  .hero-cta {
+    animation: heroPulse 2.2s infinite;
+  }
+  @keyframes heroPulse {
+    0%,100% { transform: scale(1); box-shadow: 0 8px 32px rgba(255,45,85,0.38); }
+    50%      { transform: scale(1.03); box-shadow: 0 12px 42px rgba(255,45,85,0.55); }
+  }
 
-/* PHOTO */
-.photo-container{
-  position:relative;
-  width:100%;
-  height:320px;
-  overflow:hidden;
-  background:#f0f0f0;
-}
+  .btn-outline {
+    display: block; width: 100%;
+    background: transparent;
+    color: var(--text); font-family: 'Syne', sans-serif;
+    font-weight: 600; font-size: 17px;
+    padding: 16px 24px; border-radius: 16px;
+    border: 1.5px solid rgba(255,255,255,0.14);
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, transform 0.18s;
+    text-align: center;
+  }
+  .btn-outline:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.28); transform: translateY(-1px); }
+  .btn-outline:active { transform: scale(0.97); }
 
-.photo{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  display:block;
-  transition: transform 0.3s;
-}
+  /* ── PROFILE CARDS (hero) ── */
+  .profile-stack {
+    position: relative;
+    width: 100%; max-width: 320px;
+    height: 300px;
+    margin: 0 auto;
+  }
+  .profile-card {
+    position: absolute;
+    width: 160px; height: 220px;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.55);
+    border: 2px solid rgba(255,255,255,0.08);
+  }
+  .profile-card img { width:100%; height:100%; object-fit:cover; }
+  .profile-card .info {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: linear-gradient(0deg, rgba(0,0,0,0.82) 0%, transparent 100%);
+    padding: 12px 10px 10px;
+  }
+  .profile-card .info strong { font-family:'Syne',sans-serif; font-size:13px; display:block; }
+  .profile-card .info span   { font-size:11px; color:var(--muted); }
+  .online-dot {
+    width:10px; height:10px; border-radius:50%;
+    background: #00E676; border: 2px solid var(--bg);
+    display: inline-block; margin-right:4px;
+    animation: pulse-green 2s infinite;
+  }
+  @keyframes pulse-green {
+    0%,100% { box-shadow: 0 0 0 0 rgba(0,230,118,0.5); }
+    50%      { box-shadow: 0 0 0 4px rgba(0,230,118,0); }
+  }
 
-.photo-container:hover .photo{
-  transform: scale(1.05);
-}
+  /* card positions */
+  .card-back   { left:10px; top:30px; transform: rotate(-8deg); filter: brightness(0.65); z-index:1; animation: floatBack 5s ease-in-out infinite; }
+  .card-front  { right:10px; top:0; transform: rotate(5deg);   z-index:3; animation: floatFront 4.5s ease-in-out infinite 0.3s; }
+  .card-center { left:50%; top:20px; transform: translateX(-50%) rotate(-1deg); z-index:2; animation: floatCenter 5.5s ease-in-out infinite 0.6s; width:170px; height:230px; }
+  @keyframes floatBack   { 0%,100%{ transform:rotate(-8deg) translateY(0);  } 50%{ transform:rotate(-8deg) translateY(-6px);  } }
+  @keyframes floatFront  { 0%,100%{ transform:rotate(5deg) translateY(0);   } 50%{ transform:rotate(5deg) translateY(-8px);   } }
+  @keyframes floatCenter { 0%,100%{ transform:translateX(-50%) rotate(-1deg) translateY(0); } 50%{ transform:translateX(-50%) rotate(-1deg) translateY(-10px); } }
 
-.photo-overlay{
-  position:absolute;
-  bottom:0;
-  left:0;
-  right:0;
-  background: linear-gradient(transparent, rgba(0,0,0,0.9));
-  padding:60px 18px 18px;
-  color:#fff;
-}
+  /* ── QUIZ OPTIONS ── */
+  .quiz-option {
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px 18px; border-radius: 16px;
+    border: 1.5px solid rgba(255,255,255,0.09);
+    background: rgba(255,255,255,0.03);
+    cursor: pointer;
+    transition: all 0.22s ease;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px; font-weight: 500;
+    color: var(--text);
+  }
+  .quiz-option:hover { border-color: var(--red); background: rgba(255,45,85,0.08); }
+  .quiz-option.selected {
+    border-color: var(--red);
+    background: linear-gradient(135deg, rgba(255,45,85,0.2), rgba(255,107,157,0.1));
+    box-shadow: 0 0 20px rgba(255,45,85,0.2);
+  }
+  .quiz-option .opt-icon {
+    width: 40px; height: 40px; border-radius: 12px;
+    display: flex; align-items:center; justify-content:center;
+    font-size: 20px; flex-shrink: 0;
+    background: rgba(255,255,255,0.06);
+  }
+  .quiz-option.selected .opt-icon { background: rgba(255,45,85,0.3); }
+  .check-circle {
+    margin-left: auto; width: 22px; height: 22px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.15);
+    display: flex; align-items:center; justify-content:center;
+    flex-shrink:0; transition: all 0.2s;
+  }
+  .quiz-option.selected .check-circle {
+    background: var(--red); border-color: var(--red);
+    box-shadow: 0 0 12px rgba(255,45,85,0.5);
+  }
+  .check-circle::after {
+    content:''; display:none;
+    width:6px; height:6px; border-radius:50%; background:#fff;
+  }
+  .quiz-option.selected .check-circle::after { display:block; }
 
-.flair{
-  position:absolute;
-  top:12px;
-  right:12px;
-  background: linear-gradient(135deg, #ff6b35 0%, #e8293a 100%);
-  color:#fff;
-  padding:6px 14px;
-  border-radius:20px;
-  font-size:12px;
-  font-weight:900;
-  box-shadow:0 4px 15px rgba(232,41,58,0.4);
-  animation: pulse 2s infinite;
-}
+  /* ── MATCH GALLERY ── */
+  .match-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .match-card {
+    border-radius: 18px; overflow: hidden; position: relative;
+    aspect-ratio: 3/4;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+    cursor: pointer;
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+  }
+  .match-card:hover { transform: scale(1.03); box-shadow: 0 18px 50px rgba(255,45,85,0.25); }
+  .match-card img { width:100%; height:100%; object-fit:cover; }
+  .match-card .overlay {
+    position:absolute; inset:0;
+    background: linear-gradient(0deg, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0) 55%);
+  }
+  .match-card .meta {
+    position:absolute; bottom:10px; left:10px; right:10px;
+  }
+  .match-card .meta strong { font-family:'Syne',sans-serif; font-size:14px; display:block; }
+  .match-card .meta .compat {
+    display:inline-flex; align-items:center; gap:4px;
+    background: linear-gradient(135deg, var(--red), var(--pink));
+    border-radius:20px; padding:2px 8px; font-size:11px;
+    font-weight:600; margin-top:3px;
+  }
+  .match-card .meta .dist { font-size:11px; color:rgba(255,255,255,0.55); margin-top:2px; }
 
-.name{
-  font-size:26px;
-  font-weight:900;
-  margin-bottom:4px;
-  text-shadow:0 2px 10px rgba(0,0,0,0.3);
-}
+  .pref-tag {
+    display:inline-flex; align-items:center; gap:5px;
+    background:rgba(255,45,85,0.15); border:1px solid rgba(255,45,85,0.3);
+    border-radius:20px; padding:5px 12px; font-size:12px; font-weight:600;
+    color: var(--pink);
+  }
 
-.online-status{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  font-size:13px;
-  opacity:0.95;
-  margin-top:6px;
-  font-weight:600;
-}
+  /* ── AGE BUTTONS ── */
+  .age-btn {
+    flex:1; padding:20px; border-radius:18px;
+    border:1.5px solid rgba(255,255,255,0.09);
+    background:rgba(255,255,255,0.03);
+    font-family:'Syne',sans-serif; font-size:18px; font-weight:700;
+    color:var(--text); cursor:pointer;
+    transition: all 0.22s ease; text-align:center;
+  }
+  .age-btn.yes:hover { border-color:var(--red); background:rgba(255,45,85,0.15); box-shadow:0 0 24px rgba(255,45,85,0.2); }
+  .age-btn.no:hover  { border-color:rgba(255,255,255,0.25); background:rgba(255,255,255,0.06); }
 
-/* MESSAGE */
-.message-box{
-  padding:18px;
-  background:#fff;
-}
+  /* ── LOADING DOTS ── */
+  .loading-dots { display:flex; gap:6px; align-items:center; justify-content:center; }
+  .loading-dots span {
+    width:8px; height:8px; border-radius:50%; background:var(--red);
+    animation: dot-bounce 1.2s infinite ease-in-out;
+  }
+  .loading-dots span:nth-child(2){ animation-delay:.2s; background:var(--pink); }
+  .loading-dots span:nth-child(3){ animation-delay:.4s; }
+  @keyframes dot-bounce {
+    0%,80%,100%{ transform:scale(0.6); opacity:0.5; }
+    40%{ transform:scale(1); opacity:1; }
+  }
 
-.message{
-  background: linear-gradient(135deg, #fff5f2 0%, #ffffff 100%);
-  border-radius:18px;
-  border-top-left-radius:4px;
-  padding:14px 18px;
-  font-size:16px;
-  color:#333;
-  line-height:1.6;
-  margin-bottom:16px;
-  position:relative;
-  border: 1px solid #ffe0d6;
-  font-weight:500;
-}
+  /* ── SCREEN SPECIFIC ── */
+  .brand-logo {
+    font-family:'Syne',sans-serif; font-weight:800;
+    font-size:28px; letter-spacing:-0.03em;
+    background: linear-gradient(135deg, #fff 30%, var(--pink));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  }
+  .flame-badge {
+    display:inline-flex; align-items:center; gap:6px;
+    background:rgba(255,45,85,0.15); border:1px solid rgba(255,45,85,0.3);
+    border-radius:20px; padding:5px 12px; font-size:12px; font-weight:600;
+    color:var(--pink); margin-bottom:20px;
+  }
 
-/* LOCKED PHOTOS */
-.locked-photos{
-  display:flex;
-  gap:8px;
-  margin-bottom:16px;
-}
+  .screen-inner {
+    width:100%; max-width:400px;
+    display:flex; flex-direction:column;
+    gap:0;
+  }
 
-.locked-photo{
-  flex:1;
-  height:100px;
-  border-radius:12px;
-  overflow:hidden;
-  position:relative;
-  background:#e0e0e0;
-  border: 2px solid #ffd4c8;
-}
+  .stat-row {
+    display:flex; gap:8px; justify-content:center; flex-wrap:wrap;
+  }
+  .stat-chip {
+    background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);
+    border-radius:20px; padding:6px 14px; font-size:12px; font-weight:500; color:var(--muted);
+  }
+  .stat-chip strong { color:var(--text); font-weight:700; }
 
-.locked-photo img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  filter:blur(10px) brightness(0.5);
-  transform:scale(1.1);
-}
-
-.locked-icon{
-  position:absolute;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%);
-  font-size:24px;
-  background: rgba(0,0,0,0.5);
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* BUTTONS */
-.cta-main{
-  width:100%;
-  background: linear-gradient(135deg, #ff6b35 0%, #e8293a 100%);
-  color:#fff;
-  border:none;
-  border-radius:16px;
-  padding:18px;
-  font-size:18px;
-  font-weight:900;
-  cursor:pointer;
-  margin-bottom:10px;
-  box-shadow:0 6px 25px rgba(255,107,53,0.5);
-  transition:all 0.2s;
-  -webkit-tap-highlight-color:transparent;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.cta-main:active{
-  transform:scale(0.97);
-  box-shadow:0 3px 15px rgba(255,107,53,0.3);
-}
-
-.cta-secondary{
-  width:100%;
-  background:#fff;
-  color:#e8293a;
-  border:2.5px solid #e8293a;
-  border-radius:16px;
-  padding:15px;
-  font-size:15px;
-  font-weight:800;
-  cursor:pointer;
-  -webkit-tap-highlight-color:transparent;
-  transition:all 0.2s;
-}
-
-.cta-secondary:active{
-  background:#e8293a;
-  color:#fff;
-}
-
-/* SOCIAL PROOF */
-.social-proof{
-  text-align:center;
-  padding:14px 18px;
-  color:#666;
-  font-size:13px;
-  border-top:2px solid #f0f0f0;
-  background:#fafafa;
-  font-weight:600;
-}
-
-.social-proof strong{
-  color:#e8293a;
-  font-size:14px;
-}
-
-.trust{
-  text-align:center;
-  padding:10px 18px 14px;
-  color:#999;
-  font-size:12px;
-  background:#fafafa;
-  font-weight:500;
-}
+  /* ── UNDERAGE SCREEN ── */
+  #screen-no {
+    display:none;
+  }
+  #screen-no.active {
+    display:flex;
+  }
+  .final-cta {
+    position: sticky;
+    bottom: 18px;
+    z-index: 20;
+    animation: finalPulse 2s infinite;
+  }
+  @keyframes finalPulse {
+    0%,100% { transform: scale(1); }
+    50%      { transform: scale(1.025); }
+  }
 </style>
 </head>
 <body>
 
-<div class="card">
+<div class="bg-glow"></div>
 
-  <!-- HEADER -->
-  <div class="header">
-    <div class="header-left">
-      📍 <span id="city-header">Perto de você</span>
-    </div>
-    <div class="header-badge">
-      <div class="pulse"></div>
-      <span id="online-count">847</span> online 🇧🇷
-    </div>
-  </div>
+<!-- PROGRESS BAR -->
+<div class="progress-wrap">
+  <div class="progress-bar" id="progressBar" style="width:0%"></div>
+</div>
 
-  <!-- URGENCY -->
-  <div class="urgency-bar">
-    ⏰ Oferta exclusiva · Expira em 15 min
-  </div>
+<!-- ═══════════════════════════════════════
+     SCREEN 1 — HERO
+════════════════════════════════════════ -->
+<section class="screen active" id="screen-1">
+  <div class="screen-inner" style="gap:0">
 
-  <!-- DISTANCE -->
-  <div class="distance-bar">
-    📍 <span id="distance-text">1.2km de você</span>
-  </div>
-
-  <!-- PHOTO -->
-  <div class="photo-container">
-    <img src="avatar.jpg" alt="" class="photo" id="main-photo"
-         onerror="this.style.background='linear-gradient(135deg,#f9c5c5,#c94060)';this.style.width='100%';this.style.height='100%';">
-    <div class="flair">🔥 HOT</div>
-    <div class="photo-overlay">
-      <div class="name" id="girl-name">Ana Clara, 22</div>
-      <div class="online-status">
-        <div class="pulse"></div>
-        online agora · <span id="city-overlay">São Paulo</span>
+    <!-- Fake app topbar -->
+    <div class="glass" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:18px;margin-bottom:18px">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="width:10px;height:10px;border-radius:50%;background:#00E676"></div>
+        <span style="font-size:12px;font-weight:600;color:var(--muted)">Online agora</span>
       </div>
-    </div>
-  </div>
-
-  <!-- MESSAGE + PHOTOS -->
-  <div class="message-box">
-
-    <div class="message" id="girl-message">
-      Oi! Vi que você está perto 😊 Queria te conhecer melhor... tenho umas fotos pra te mandar 🔥
-    </div>
-
-    <div class="locked-photos">
-      <div class="locked-photo">
-        <img src="photo2.jpg" alt=""
-             onerror="this.parentElement.style.background='linear-gradient(135deg,#fde68a,#d97706)';">
-        <span class="locked-icon">🔒</span>
-      </div>
-      <div class="locked-photo">
-        <img src="photo3.jpg" alt=""
-             onerror="this.parentElement.style.background='linear-gradient(135deg,#bfdbfe,#3b82f6)';">
-        <span class="locked-icon">🔒</span>
-      </div>
-      <div class="locked-photo">
-        <img src="photo1.jpg" alt=""
-             onerror="this.parentElement.style.background='linear-gradient(135deg,#d9f99d,#16a34a)';">
-        <span class="locked-icon">🔒</span>
+      <div style="display:flex;align-items:center;gap:14px">
+        <span style="font-size:14px">💬</span>
+        <span style="font-size:14px">❤️</span>
+        <span style="font-size:14px">🔔</span>
       </div>
     </div>
 
-    <button class="cta-main" id="cta-main">
-      Ver Perfil Completo 🔥
+    <!-- Top bar -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px">
+      <span class="brand-logo">Chama 🔥</span>
+      <span style="font-size:12px;color:var(--muted);background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.2);border-radius:20px;padding:4px 10px">
+        <span class="online-dot"></span>4.2k online
+      </span>
+    </div>
+
+    <!-- Profile stack -->
+    <div class="profile-stack" style="margin-bottom:32px">
+      <!-- Back card -->
+      <div class="profile-card card-back">
+        <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=320&h=420&fit=crop&crop=face" alt="">
+        <div class="info">
+          <strong>Beatriz</strong>
+          <span>23 anos</span>
+        </div>
+      </div>
+      <!-- Front card -->
+      <div class="profile-card card-front">
+        <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=320&h=420&fit=crop&crop=face" alt="">
+        <div class="info">
+          <strong>Camila</strong>
+          <span>26 anos</span>
+        </div>
+      </div>
+      <!-- Center card -->
+      <div class="profile-card card-center">
+        <img src="https://images.unsplash.com/photo-1488716820095-cbe80883c496?w=340&h=460&fit=crop&crop=face" alt="">
+        <div class="info">
+          <strong>Juliana</strong>
+          <span><span class="online-dot"></span>Online agora</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Copy -->
+    <div style="text-align:center;margin-bottom:28px">
+      <div class="flame-badge">🔥 Novos perfis perto de você</div>
+      <h1 style="font-size:clamp(26px,7vw,34px);font-weight:800;line-height:1.15;margin-bottom:12px">
+        Perfis compatíveis<br>disponíveis agora 🔥
+      </h1>
+      <p style="color:var(--muted);font-size:15px;line-height:1.5">
+        Descubra novas conexões e perfis ativos<br>na sua região
+      </p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stat-row" style="margin-bottom:28px">
+      <span class="stat-chip"><strong>87k+</strong> usuários</span>
+      <span class="stat-chip"><strong>4.8★</strong> avaliação</span>
+      <span class="stat-chip"><strong>100%</strong> grátis</span>
+    </div>
+
+    <!-- CTA -->
+    <button class="btn-primary hero-cta" onclick="goTo(2)">
+      Ver Perfis Compatíveis →
     </button>
-    <button class="cta-secondary" id="cta-secondary">
-      Desbloquear Fotos Privadas 🔒
+    <p style="text-align:center;font-size:12px;color:var(--muted);margin-top:12px">
+      Sem cadastro · Acesso imediato
+    </p>
+
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     SCREEN 2 — VERIFICAÇÃO 18+
+════════════════════════════════════════ -->
+<section class="screen" id="screen-2">
+  <div class="screen-inner" style="gap:0;max-width:360px">
+
+    <div style="text-align:center;margin-bottom:36px">
+      <div style="width:72px;height:72px;border-radius:22px;background:linear-gradient(135deg,var(--red),var(--pink));display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 20px;box-shadow:0 12px 40px rgba(255,45,85,0.4)">
+        🔞
+      </div>
+      <h2 style="font-size:24px;font-weight:800;margin-bottom:10px">Verificação de Idade</h2>
+      <p style="color:var(--muted);font-size:15px;line-height:1.55">
+        Este conteúdo é destinado apenas a maiores de 18 anos.
+      </p>
+    </div>
+
+    <div class="glass" style="padding:20px;margin-bottom:24px">
+      <p style="text-align:center;font-size:17px;font-weight:600;margin-bottom:20px">
+        Você tem mais de 18 anos?
+      </p>
+      <div style="display:flex;gap:12px">
+        <button class="age-btn yes" onclick="goTo(3)">
+          ✅ Sim
+        </button>
+        <button class="age-btn no" onclick="goToNo()">
+          ❌ Não
+        </button>
+      </div>
+    </div>
+
+    <p style="text-align:center;font-size:12px;color:var(--muted);line-height:1.5">
+      Ao prosseguir, você confirma que é maior de 18 anos e concorda com nossos <span style="color:var(--pink)">Termos de Uso</span>.
+    </p>
+
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     SCREEN — UNDERAGE (não volta)
+════════════════════════════════════════ -->
+<section class="screen" id="screen-no" style="display:none">
+  <div style="text-align:center;max-width:320px">
+    <div style="font-size:64px;margin-bottom:20px">🚫</div>
+    <h2 style="font-size:22px;font-weight:800;margin-bottom:12px">Acesso Restrito</h2>
+    <p style="color:var(--muted);font-size:15px;line-height:1.6">
+      Este aplicativo é destinado apenas para maiores de 18 anos. Você não pode acessar este conteúdo.
+    </p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     SCREEN 3 — QUIZ
+════════════════════════════════════════ -->
+<section class="screen" id="screen-3">
+  <div class="screen-inner" style="gap:0;max-width:400px">
+
+    <div style="margin-bottom:28px">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:8px;font-weight:600;letter-spacing:.06em;text-transform:uppercase">Passo 2 de 3</p>
+      <h2 style="font-size:24px;font-weight:800;margin-bottom:8px">O que você procura? 👀</h2>
+      <p style="color:var(--muted);font-size:14px">Selecione todas que se aplicam</p>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:28px" id="quizOptions">
+
+      <div class="quiz-option" data-val="conversar" onclick="toggleOpt(this)">
+        <span class="opt-icon">💬</span>
+        <span>Conversar</span>
+        <span class="check-circle"></span>
+      </div>
+      <div class="quiz-option" data-val="conhecer" onclick="toggleOpt(this)">
+        <span class="opt-icon">🤝</span>
+        <span>Conhecer pessoas</span>
+        <span class="check-circle"></span>
+      </div>
+      <div class="quiz-option" data-val="casual" onclick="toggleOpt(this)">
+        <span class="opt-icon">🔥</span>
+        <span>Relacionamento casual</span>
+        <span class="check-circle"></span>
+      </div>
+      <div class="quiz-option" data-val="conexoes" onclick="toggleOpt(this)">
+        <span class="opt-icon">✨</span>
+        <span>Novas conexões</span>
+        <span class="check-circle"></span>
+      </div>
+      <div class="quiz-option" data-val="mensagens" onclick="toggleOpt(this)">
+        <span class="opt-icon">📩</span>
+        <span>Trocar mensagens</span>
+        <span class="check-circle"></span>
+      </div>
+
+    </div>
+
+    <button class="btn-primary" id="quizCTA" onclick="goToResults()" style="opacity:.4;pointer-events:none">
+      Ver perfis compatíveis →
     </button>
 
   </div>
+</section>
 
-  <div class="social-proof">
-    👥 <strong id="online-count-2">847</strong> pessoas online agora em <strong id="city-proof">São Paulo</strong> 🇧🇷
+
+<!-- ═══════════════════════════════════════
+     SCREEN 3.5 — LOADING
+════════════════════════════════════════ -->
+<section class="screen" id="screen-loading">
+  <div style="text-align:center">
+    <div style="font-size:48px;margin-bottom:24px;animation:floatCenter 2s ease-in-out infinite">🔍</div>
+    <h3 id="loadingTitle" style="font-size:20px;font-weight:700;margin-bottom:8px">Analisando preferências...</h3>
+    <p id="loadingText" style="color:var(--muted);font-size:14px;margin-bottom:24px">Preparando perfis compatíveis</p>
+    <div class="loading-dots">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     SCREEN 4 — RESULTADOS
+════════════════════════════════════════ -->
+<section class="screen" id="screen-4">
+  <div class="screen-inner" style="gap:0;max-width:420px">
+
+    <div style="text-align:center;margin-bottom:22px">
+      <h2 style="font-size:22px;font-weight:800;margin-bottom:8px;line-height:1.3">
+        Encontramos perfis compatíveis com suas preferências 😉
+      </h2>
+      <p style="color:var(--muted);font-size:13px">Baseado nas suas escolhas</p>
+    </div>
+
+    <!-- Pref tags -->
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;justify-content:center" id="prefTags"></div>
+
+    <!-- Match grid -->
+    <div class="match-grid" style="margin-bottom:22px">
+
+      <div class="match-card">
+        <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=300&h=400&fit=crop&crop=face" alt="">
+        <div class="overlay"></div>
+        <div class="meta">
+          <strong>Camila, 26</strong>
+          <div><span class="compat">🔥 97%</span></div>
+          <div class="dist">📍 1.2 km</div>
+        </div>
+      </div>
+
+      <div class="match-card">
+        <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=300&h=400&fit=crop&crop=face" alt="">
+        <div class="overlay"></div>
+        <div class="meta">
+          <strong>Beatriz, 23</strong>
+          <div><span class="compat">❤️ 94%</span></div>
+          <div class="dist">📍 0.8 km</div>
+        </div>
+      </div>
+
+      <div class="match-card">
+        <img src="https://images.unsplash.com/photo-1488716820095-cbe80883c496?w=300&h=400&fit=crop&crop=face" alt="">
+        <div class="overlay"></div>
+        <div class="meta">
+          <strong>Juliana, 28</strong>
+          <div><span class="compat">✨ 91%</span></div>
+          <div class="dist">📍 2.5 km</div>
+        </div>
+      </div>
+
+      <!-- Blurred teaser -->
+      <div class="match-card" style="position:relative;overflow:hidden">
+        <img src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=300&h=400&fit=crop&crop=face" alt="" style="filter:blur(12px);transform:scale(1.1)">
+        <div class="overlay"></div>
+        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px">
+          <div style="width:40px;height:40px;border-radius:50%;background:rgba(255,45,85,0.25);backdrop-filter:blur(10px);border:1.5px solid rgba(255,45,85,0.5);display:flex;align-items:center;justify-content:center;font-size:20px">🔒</div>
+          <span style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.9);text-align:center;line-height:1.3">+39 perfis<br>disponíveis</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Online count -->
+    <div style="display:flex;align-items:center;gap:8px;justify-content:center;margin-bottom:22px;padding:10px 16px;background:rgba(0,230,118,0.07);border:1px solid rgba(0,230,118,0.15);border-radius:12px">
+      <span class="online-dot"></span>
+      <span style="font-size:13px;font-weight:600;color:rgba(0,230,118,0.85)">42 pessoas online perto de você agora</span>
+    </div>
+
+    <!-- Final CTA -->
+    <button class="btn-primary final-cta" style="font-size:18px;padding:20px" onclick="handleCTA()">
+      Desbloquear Perfis →
+    </button>
+    <p style="text-align:center;font-size:12px;color:var(--muted);margin-top:10px">
+      Grátis · Sem cartão · Acesso imediato
+    </p>
+
+  </div>
+</section>
+
+
+<script>
+let currentScreen = 1;
+let selectedOptions = [];
+
+const progressMap = { 1: 0, 2: 30, 3: 60, 'loading': 80, 4: 100 };
+const optionLabels = {
+  conversar:  { label: '💬 Conversar' },
+  conhecer:   { label: '🤝 Conhecer' },
+  casual:     { label: '🔥 Casual' },
+  conexoes:   { label: '✨ Conexões' },
+  mensagens:  { label: '📩 Mensagens' },
+};
+
+function setProgress(val) {
+  document.getElementById('progressBar').style.width = val + '%';
+}
+
+function goTo(n) {
+  const cur = document.querySelector('.screen.active');
+  if (cur) { cur.classList.remove('active'); cur.style.display = 'none'; }
+  const next = document.getElementById('screen-' + n);
+  if (next) {
+    next.style.display = 'flex';
+    requestAnimationFrame(() => next.classList.add('active'));
+  }
+  currentScreen = n;
+  if (progressMap[n] !== undefined) setProgress(progressMap[n]);
+}
+
+function goToNo() {
+  const cur = document.querySelector('.screen.active');
+  if (cur) { cur.classList.remove('active'); cur.style.display = 'none'; }
+  const no = document.getElementById('screen-no');
+  no.style.display = 'flex';
+  requestAnimationFrame(() => no.classList.add('active'));
+  setProgress(0);
+}
+
+function toggleOpt(el) {
+  el.classList.toggle('selected');
+  const val = el.dataset.val;
+  if (el.classList.contains('selected')) {
+    if (!selectedOptions.includes(val)) selectedOptions.push(val);
+  } else {
+    selectedOptions = selectedOptions.filter(v => v !== val);
+  }
+  const cta = document.getElementById('quizCTA');
+  if (selectedOptions.length > 0) {
+    cta.style.opacity = '1'; cta.style.pointerEvents = 'all';
+  } else {
+    cta.style.opacity = '.4'; cta.style.pointerEvents = 'none';
+  }
+}
+
+function goToResults() {
+  // Show loading first
+  const cur = document.querySelector('.screen.active');
+  if (cur) { cur.classList.remove('active'); cur.style.display = 'none'; }
+  const loading = document.getElementById('screen-loading');
+  loading.style.display = 'flex';
+  requestAnimationFrame(() => loading.classList.add('active'));
+  setProgress(progressMap['loading']);
+
+  // Build pref tags
+  const tags = document.getElementById('prefTags');
+  tags.innerHTML = '';
+  if (selectedOptions.length === 0) selectedOptions = ['casual','conexoes'];
+  selectedOptions.forEach(v => {
+    const span = document.createElement('span');
+    span.className = 'pref-tag';
+    span.textContent = optionLabels[v]?.label || v;
+    tags.appendChild(span);
+  });
+
+  const loadingSteps = [
+    { title: 'Analisando preferências...', text: 'Verificando compatibilidades' },
+    { title: 'Encontrando perfis...',      text: 'Preparando resultados personalizados' },
+    { title: 'Finalizando...',             text: 'Perfis disponíveis encontrados' }
+  ];
+  let step = 0;
+  const loadingInterval = setInterval(() => {
+    step++;
+    if (step < loadingSteps.length) {
+      document.getElementById('loadingTitle').textContent = loadingSteps[step].title;
+      document.getElementById('loadingText').textContent  = loadingSteps[step].text;
+    }
+  }, 600);
+
+  setTimeout(() => {
+    clearInterval(loadingInterval);
+    loading.classList.remove('active');
+    loading.style.display = 'none';
+    const s4 = document.getElementById('screen-4');
+    s4.style.display = 'flex';
+    requestAnimationFrame(() => s4.classList.add('active'));
+    setProgress(100);
+  }, 1800);
+}
+
+function handleCTA() {
+  const btn = document.querySelector('#screen-4 .btn-primary');
+  btn.style.transform = 'scale(0.96)';
+  setTimeout(() => {
+    btn.style.transform = '';
+    window.open('YOUR_OFFER_URL', '_blank');
+  }, 180);
+}
+
+// Init
+setProgress(0);
+
+<!-- Bottom app nav -->
+<div style="
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+height:68px;
+background:rgba(10,10,15,0.92);
+backdrop-filter:blur(18px);
+border-top:1px solid rgba(255,255,255,0.06);
+display:flex;
+justify-content:space-around;
+align-items:center;
+z-index:999;
+padding-bottom:env(safe-area-inset-bottom);
+">
+
+  <div style="display:flex;flex-direction:column;align-items:center;gap:4px;opacity:1">
+    <span style="font-size:20px">🔥</span>
+    <span style="font-size:11px;color:#fff">Descobrir</span>
   </div>
 
-  <div class="trust">
-    🔒 Gratuito · Sem cartão · Apenas 18+ · Verificado
+  <div style="display:flex;flex-direction:column;align-items:center;gap:4px;opacity:.5">
+    <span style="font-size:20px">❤️</span>
+    <span style="font-size:11px;color:#fff">Likes</span>
+  </div>
+
+  <div style="display:flex;flex-direction:column;align-items:center;gap:4px;opacity:.5">
+    <span style="font-size:20px">💬</span>
+    <span style="font-size:11px;color:#fff">Chats</span>
+  </div>
+
+  <div style="display:flex;flex-direction:column;align-items:center;gap:4px;opacity:.5">
+    <span style="font-size:20px">👤</span>
+    <span style="font-size:11px;color:#fff">Perfil</span>
   </div>
 
 </div>
 
-<script>
-// ============================================================
-// ОФФЕР — новый смартлинк LosPollos
-// ============================================================
-const OFFER_URL = 'https://zrfny.bemobtrcks.com/click';
-
-// ============================================================
-// ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ
-// ============================================================
-function getParam(name){
-  return new URLSearchParams(window.location.search).get(name);
-}
-
-// ============================================================
-// ГОРОД
-// ============================================================
-const rawCity = getParam('city') || '';
-
-let city = 'São Paulo';
-if(rawCity){
-  try{
-    city = decodeURIComponent(rawCity);
-    city = city.charAt(0).toUpperCase() + city.slice(1).toLowerCase();
-  }catch(e){
-    city = 'São Paulo';
-  }
-}
-
-document.getElementById('city-header').innerText = city;
-document.getElementById('city-overlay').innerText = city;
-document.getElementById('city-proof').innerText = city;
-
-document.getElementById('girl-message').innerText =
-  'Oi! Vi que você está em ' + city + ' 😊 Queria te conhecer melhor... tenho umas fotos pra te mandar 🔥';
-
-// ============================================================
-// ИМЯ из параметра ?name=
-// ============================================================
-const girlName = getParam('name') || 'Ana Clara';
-document.getElementById('girl-name').innerText = girlName + ', 22';
-
-// ============================================================
-// РАССТОЯНИЕ — случайное реалистичное
-// ============================================================
-const dist = (Math.random() * 2.7 + 0.5).toFixed(1);
-document.getElementById('distance-text').innerText = dist + 'km de você em ' + city;
-
-// ============================================================
-// ОНЛАЙН — случайное неровное число
-// ============================================================
-const onlineNums = [612, 743, 891, 1034, 567, 823, 956, 734, 681, 1102];
-const onlineCount = onlineNums[Math.floor(Math.random() * onlineNums.length)];
-document.getElementById('online-count').innerText = onlineCount;
-document.getElementById('online-count-2').innerText = onlineCount;
-
-// ============================================================
-// REDIRECT — Bemob передаёт cid
-// ============================================================
-function redirectUser(){
-  try{
-    const cid = getParam('cid') || '';
-    let finalUrl = OFFER_URL;
-    
-    if(cid){
-      finalUrl += '?clickid=' + encodeURIComponent(cid);
-    }
-    
-    window.location.href = finalUrl;
-  }catch(e){
-    window.location.href = OFFER_URL;
-  }
-}
-
-document.getElementById('cta-main').addEventListener('click', function(e){
-  e.preventDefault();
-  redirectUser();
-});
-
-document.getElementById('cta-secondary').addEventListener('click', function(e){
-  e.preventDefault();
-  redirectUser();
-});
-
-// BACKBUTTON
-history.pushState({}, '', location.href);
-window.addEventListener('popstate', function(){
-  redirectUser();
-});
 </script>
-
 </body>
 </html>
