@@ -1,406 +1,909 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>💬 Mensagens</title>
-    <style>
-        :root {
-            --bg: #0F0F14;
-            --card: #1C1C27;
-            --accent: #FF2D6E;
-            --accent2: #FF4D8C;
-        }
-        
-        * { margin:0; padding:0; box-sizing:border-box; }
-        
-        body {
-            background: var(--bg);
-            color: #F8F8FF;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            min-height: 100vh;
-            overflow-x: hidden;
-            padding-bottom: 90px;
-            position: relative;
-        }
-        
-        .status-bar {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            height: 44px;
-            background: rgba(15,15,20,0.95);
-            backdrop-filter: blur(20px);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 13px;
-            color: #aaa;
-        }
-        
-        .header {
-            position: fixed;
-            top: 44px; left: 0; right: 0;
-            height: 64px;
-            background: rgba(28,28,39,0.97);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255,45,110,0.2);
-            display: flex;
-            align-items: center;
-            padding: 0 16px;
-            z-index: 999;
-            gap: 12px;
-        }
-        
-        .header-avatar {
-            width: 42px; height: 42px;
-            border-radius: 50%;
-            background: url('./img/1.webp') center/cover;
-            flex-shrink: 0;
-        }
-        
-        .header-info { flex: 1; }
-        .header-name { font-weight: 700; font-size: 16.5px; }
-        .header-status {
-            font-size: 13px;
-            color: #00E676;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .unread-badge {
-            background: #FF2D6E;
-            color: white;
-            font-size: 11px;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 20px;
-            margin-left: auto;
-        }
-        
-        .chat-container {
-            margin-top: 108px;
-            padding: 16px;
-            max-width: 440px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        
-        .message {
-            margin-bottom: 20px;
-            animation: messageIn 0.45s ease forwards;
-            opacity: 0;
-        }
-        
-        .bubble {
-            background: var(--card);
-            padding: 13px 17px;
-            border-radius: 20px 20px 20px 5px;
-            font-size: 16.2px;
-            line-height: 1.35;
-            display: inline-block;
-            max-width: 78%;
-            box-shadow: 0 3px 12px rgba(0,0,0,0.35);
-        }
-        
-        .typing {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            background: var(--card);
-            padding: 12px 16px;
-            border-radius: 20px 20px 20px 5px;
-            width: fit-content;
-            margin-left: 52px;
-        }
-        
-        .typing-dot {
-            width: 7px; height: 7px;
-            background: #aaa;
-            border-radius: 50%;
-            animation: typingDot 1.3s infinite;
-        }
-        .typing-dot:nth-child(2){animation-delay:0.2s}
-        .typing-dot:nth-child(3){animation-delay:0.4s}
-        
-        .main-cta {
-            position: fixed;
-            bottom: 20px;
-            left: 16px; right: 16px;
-            max-width: 440px;
-            margin: 0 auto;
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            color: white;
-            font-size: 17.5px;
-            font-weight: 700;
-            padding: 19px 24px;
-            border-radius: 18px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(255,45,110,0.45);
-            cursor: pointer;
-            transition: all 0.2s;
-            animation: pulseBtn 2.2s infinite;
-        }
-        
-        @keyframes pulseBtn {
-            0%,100% { transform: scale(1); }
-            50% { transform: scale(1.035); }
-        }
-        
-        .profiles-screen {
-            display: none;
-            flex-direction: column;
-            min-height: 100vh;
-            background: var(--bg);
-        }
-        
-        .profiles-header {
-            padding: 16px;
-            text-align: center;
-            background: rgba(28,28,39,0.95);
-        }
-        
-        .profiles-grid {
-            padding: 16px;
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-        }
-        
-        .profile-card {
-            border-radius: 16px;
-            overflow: hidden;
-            position: relative;
-            aspect-ratio: 0.78;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.45);
-        }
-        
-        .profile-card img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .slightly-blur img { filter: blur(6px) brightness(0.9); }
-        
-        .profile-info {
-            position: absolute;
-            bottom: 0; left: 0; right: 0;
-            background: linear-gradient(transparent, rgba(0,0,0,0.92));
-            padding: 14px 12px 12px;
-        }
-        
-        .live-toast {
-            position: fixed;
-            bottom: 100px;
-            left: 16px; right: 16px;
-            background: rgba(28,28,39,0.96);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,45,110,0.25);
-            border-radius: 14px;
-            padding: 12px 14px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 14.5px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-            z-index: 2000;
-            transform: translateY(80px);
-            opacity: 0;
-            transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
-        }
-        
-        .live-toast.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-        
-        @keyframes messageIn {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes typingDot {
-            0%,100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Подбор займа онлайн — за 1 минуту</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+/* ═══════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════ */
+:root {
+  --navy:    #0C2554;
+  --blue:    #1A3F80;
+  --accent:  #F05A1A;
+  --accent-h:#D44A10;
+  --green:   #059669;
+  --bg:      #F0F4FA;
+  --card:    #FFFFFF;
+  --border:  #D8E3F2;
+  --txt:     #0B1829;
+  --txt2:    #3D536E;
+  --txt3:    #8A9BB5;
+  --fh:      'Manrope', -apple-system, sans-serif;
+  --fb:      -apple-system, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* ═══════════════════════════════════════
+   RESET
+═══════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: var(--fb);
+  background: var(--bg);
+  color: var(--txt);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+/* ═══════════════════════════════════════
+   LAYOUT WRAPPER
+═══════════════════════════════════════ */
+.wrap {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* ═══════════════════════════════════════
+   HEADER
+═══════════════════════════════════════ */
+.hdr {
+  background: var(--navy);
+  padding: 14px 16px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.logo {
+  font-family: var(--fh);
+  font-size: 17px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: -0.4px;
+}
+.logo em { font-style: normal; color: #F59E0B; }
+.hdr-ssl {
+  font-size: 11px;
+  color: rgba(255,255,255,.65);
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.15);
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+/* ═══════════════════════════════════════
+   PROGRESS BAR
+═══════════════════════════════════════ */
+.prog-wrap {
+  background: var(--navy);
+  padding: 0 16px 14px;
+  flex-shrink: 0;
+}
+.prog-label {
+  font-size: 11px;
+  color: rgba(255,255,255,.55);
+  margin-bottom: 6px;
+  font-weight: 600;
+  letter-spacing: .3px;
+}
+.prog-track {
+  height: 5px;
+  background: rgba(255,255,255,.15);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.prog-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #F59E0B, #F05A1A);
+  border-radius: 10px;
+  width: 0%;
+  transition: width .45s cubic-bezier(.4,0,.2,1);
+}
+
+/* ═══════════════════════════════════════
+   MAIN AREA
+═══════════════════════════════════════ */
+.main {
+  flex: 1;
+  padding: 20px 16px 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ═══════════════════════════════════════
+   SCREENS
+═══════════════════════════════════════ */
+.screen {
+  display: none;
+  flex-direction: column;
+  gap: 14px;
+  animation: fadeUp .3s ease both;
+}
+.screen.active { display: flex; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══════════════════════════════════════
+   INTRO SCREEN
+═══════════════════════════════════════ */
+.intro-card {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 24px 20px;
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 16px rgba(12,37,84,.08);
+  text-align: center;
+}
+.intro-badge {
+  display: inline-block;
+  background: #FEF3C7;
+  color: #92400E;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-bottom: 14px;
+  letter-spacing: .4px;
+  text-transform: uppercase;
+}
+.intro-title {
+  font-family: var(--fh);
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--txt);
+  line-height: 1.2;
+  margin-bottom: 10px;
+}
+.intro-title span { color: var(--accent); }
+.intro-sub {
+  font-size: 14px;
+  color: var(--txt2);
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+.intro-stats {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 22px;
+  padding: 14px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.stat-item { text-align: center; }
+.stat-val {
+  display: block;
+  font-family: var(--fh);
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--navy);
+}
+.stat-lbl {
+  font-size: 11px;
+  color: var(--txt3);
+  margin-top: 2px;
+  display: block;
+}
+.intro-trust {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  text-align: left;
+  margin-bottom: 22px;
+}
+.trust-row-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--txt2);
+}
+.trust-row-item .icon {
+  width: 22px;
+  text-align: center;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════
+   QUESTION SCREEN
+═══════════════════════════════════════ */
+.q-step {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--txt3);
+  text-transform: uppercase;
+  letter-spacing: .6px;
+}
+.q-title {
+  font-family: var(--fh);
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--txt);
+  line-height: 1.25;
+}
+.q-sub {
+  font-size: 13px;
+  color: var(--txt2);
+  margin-top: -6px;
+}
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.opt {
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s, transform .1s;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.opt:active { transform: scale(.98); }
+.opt.selected {
+  border-color: var(--accent);
+  background: #FFF5F2;
+}
+.opt-ico {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+  transition: background .15s;
+}
+.opt.selected .opt-ico { background: #FFDDD5; }
+.opt-text strong {
+  display: block;
+  font-family: var(--fh);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--txt);
+  line-height: 1.2;
+}
+.opt-text span {
+  font-size: 12px;
+  color: var(--txt3);
+  margin-top: 2px;
+  display: block;
+}
+
+/* ═══════════════════════════════════════
+   LOADING SCREEN
+═══════════════════════════════════════ */
+.loading-card {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 32px 20px;
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 16px rgba(12,37,84,.08);
+  text-align: center;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+}
+.spinner {
+  width: 52px;
+  height: 52px;
+  border: 4px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .9s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-title {
+  font-family: var(--fh);
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--txt);
+}
+.loading-sub { font-size: 13px; color: var(--txt2); line-height: 1.5; }
+.loading-steps {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 260px;
+}
+.loading-steps li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--txt2);
+  padding: 8px 12px;
+  background: var(--bg);
+  border-radius: 8px;
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: opacity .3s, transform .3s;
+}
+.loading-steps li.done {
+  opacity: 1;
+  transform: translateX(0);
+  color: var(--green);
+  font-weight: 600;
+}
+.loading-steps li.done::before { content: '✓'; font-weight: 800; }
+.loading-steps li:not(.done)::before { content: '·'; color: var(--txt3); }
+
+/* ═══════════════════════════════════════
+   RESULT SCREEN
+═══════════════════════════════════════ */
+.result-card {
+  background: linear-gradient(135deg, var(--navy) 0%, #1A4A8A 100%);
+  border-radius: 16px;
+  padding: 24px 20px;
+  text-align: center;
+  color: #fff;
+}
+.result-num {
+  font-family: var(--fh);
+  font-size: 52px;
+  font-weight: 900;
+  color: #F59E0B;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.result-label {
+  font-size: 15px;
+  color: rgba(255,255,255,.85);
+  margin-bottom: 16px;
+}
+.result-tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 0;
+}
+.rtag {
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.18);
+  padding: 4px 11px;
+  border-radius: 20px;
+  color: rgba(255,255,255,.85);
+}
+.result-offers {
+  background: var(--card);
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.r-offer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  gap: 10px;
+}
+.r-offer:last-child { border-bottom: none; }
+.r-offer-left { display: flex; align-items: center; gap: 10px; }
+.r-ico {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.r-name {
+  font-family: var(--fh);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--txt);
+  line-height: 1.2;
+}
+.r-name span {
+  display: block;
+  font-family: var(--fb);
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--txt3);
+  margin-top: 1px;
+}
+.r-prob {
+  font-family: var(--fh);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 20px;
+  flex-shrink: 0;
+}
+.prob-hi  { background: #D1FAE5; color: #065F46; }
+.prob-mid { background: #FEF3C7; color: #92400E; }
+.result-hint {
+  font-size: 12px;
+  color: var(--txt3);
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* ═══════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════ */
+.btn {
+  display: block;
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  border: none;
+  font-family: var(--fh);
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+  background: var(--accent);
+  box-shadow: 0 4px 20px rgba(240,90,26,.38);
+  cursor: pointer;
+  transition: background .15s, transform .12s, box-shadow .15s;
+  -webkit-tap-highlight-color: transparent;
+  text-align: center;
+  letter-spacing: -.1px;
+}
+.btn:hover   { background: var(--accent-h); }
+.btn:active  { transform: scale(.98); box-shadow: 0 2px 10px rgba(240,90,26,.3); }
+.btn-sub {
+  font-family: var(--fb);
+  font-size: 11px;
+  color: var(--txt3);
+  text-align: center;
+  margin-top: -6px;
+}
+
+/* ═══════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════ */
+.foot {
+  padding: 14px 16px 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.foot p {
+  font-size: 10px;
+  color: var(--txt3);
+  line-height: 1.5;
+  max-width: 380px;
+  margin: 0 auto;
+}
+</style>
 </head>
+
 <body>
-    <div class="status-bar">19:47 • Vivo • 84%</div>
+<div class="wrap">
 
-    <!-- CHAT HEADER -->
-    <div class="header">
-        <div class="header-avatar"></div>
-        <div class="header-info">
-            <div class="header-name">gata.s23</div>
-            <div class="header-status">
-                <span style="display:inline-block;width:8px;height:8px;background:#00E676;border-radius:50%;"></span>
-                online agora • ativo há 2 min
-            </div>
+  <!-- HEADER -->
+  <header class="hdr">
+    <div class="logo">Заём<em>Подбор</em></div>
+    <div class="hdr-ssl">🔒 SSL</div>
+  </header>
+
+  <!-- PROGRESS BAR (скрыт на intro) -->
+  <div class="prog-wrap" id="progWrap" style="display:none">
+    <div class="prog-label" id="progLabel">Шаг 1 из 3</div>
+    <div class="prog-track">
+      <div class="prog-fill" id="progFill"></div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- ══════════════════════════════
+         SCREEN 0: INTRO
+    ══════════════════════════════ -->
+    <div class="screen active" id="s0">
+      <div class="intro-card">
+        <div class="intro-badge">⚡ Подбор за 1 минуту</div>
+        <h1 class="intro-title">Найдём займ с&nbsp;<span>высоким шансом одобрения</span></h1>
+        <p class="intro-sub">Ответьте на 3 вопроса — покажем МФО, которые одобряют именно вашу заявку</p>
+
+        <div class="intro-stats">
+          <div class="stat-item">
+            <span class="stat-val">9</span>
+            <span class="stat-lbl">МФО в базе</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-val">94%</span>
+            <span class="stat-lbl">Одобрений</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-val">0%</span>
+            <span class="stat-lbl">Первый займ</span>
+          </div>
         </div>
-        <div class="unread-badge">2</div>
+
+        <div class="intro-trust">
+          <div class="trust-row-item"><span class="icon">✅</span>Без визита в офис — всё онлайн</div>
+          <div class="trust-row-item"><span class="icon">📱</span>Деньги на карту за 5–15 минут</div>
+          <div class="trust-row-item"><span class="icon">🛡️</span>Подбор не влияет на кредитную историю</div>
+        </div>
+
+        <button class="btn" onclick="startQuiz()">Подобрать займ →</button>
+      </div>
+      <div class="btn-sub">Бесплатно · Без обязательств · 1 минута</div>
     </div>
 
-    <!-- SCREEN 1: CHAT -->
-    <div id="screen1" class="chat-container">
-        <div class="message" style="animation-delay: 200ms">
-            <div style="display:flex; align-items:flex-start; gap:10px;">
-                <div style="width:38px;height:38px;border-radius:50%;background:url('./img/1.webp') center/cover;flex-shrink:0;"></div>
-                <div class="bubble">
-                    oi kk 😅<br>vc mora perto?
-                </div>
-            </div>
+    <!-- ══════════════════════════════
+         SCREEN 1: СКОЛЬКО НУЖНО
+    ══════════════════════════════ -->
+    <div class="screen" id="s1">
+      <div class="q-step">Вопрос 1 из 3</div>
+      <h2 class="q-title">Какая сумма нужна?</h2>
+      <p class="q-sub">Выберите наиболее подходящий вариант</p>
+      <div class="options">
+        <div class="opt" onclick="selectOpt(this, 1, 'a')">
+          <div class="opt-ico">💵</div>
+          <div class="opt-text">
+            <strong>До 10 000 ₽</strong>
+            <span>До зарплаты, небольшая нужда</span>
+          </div>
         </div>
-        
-        <div class="message" style="animation-delay: 1100ms">
-            <div style="display:flex; align-items:flex-start; gap:10px;">
-                <div style="width:38px;height:38px;border-radius:50%;background:url('./img/2.webp') center/cover;flex-shrink:0;"></div>
-                <div class="bubble">
-                    vc parece ser legal 🔥<br>quer conversar um pouco?
-                </div>
-            </div>
+        <div class="opt" onclick="selectOpt(this, 1, 'b')">
+          <div class="opt-ico">💰</div>
+          <div class="opt-text">
+            <strong>10 000 — 30 000 ₽</strong>
+            <span>На ремонт, покупку, форс-мажор</span>
+          </div>
         </div>
-        
-        <div id="typing" class="typing">
-            <div class="typing-dot"></div>
-            <div class="typing-dot"></div>
-            <div class="typing-dot"></div>
-            <span style="margin-left:8px; color:#aaa; font-size:14px;">digitando...</span>
+        <div class="opt" onclick="selectOpt(this, 1, 'c')">
+          <div class="opt-ico">💎</div>
+          <div class="opt-text">
+            <strong>30 000 — 50 000 ₽</strong>
+            <span>Крупная покупка или нужда</span>
+          </div>
         </div>
+        <div class="opt" onclick="selectOpt(this, 1, 'd')">
+          <div class="opt-ico">🏦</div>
+          <div class="opt-text">
+            <strong>Более 50 000 ₽</strong>
+            <span>Большая сумма, длинный срок</span>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- MAIN CTA -->
-    <div onclick="goToProfiles()" id="mainCTA" class="main-cta">
-        RESPONDER MENSAGEM →
+    <!-- ══════════════════════════════
+         SCREEN 2: НА КАКОЙ СРОК
+    ══════════════════════════════ -->
+    <div class="screen" id="s2">
+      <div class="q-step">Вопрос 2 из 3</div>
+      <h2 class="q-title">На какой срок?</h2>
+      <p class="q-sub">Когда планируете вернуть деньги</p>
+      <div class="options">
+        <div class="opt" onclick="selectOpt(this, 2, 'a')">
+          <div class="opt-ico">📅</div>
+          <div class="opt-text">
+            <strong>До 2 недель</strong>
+            <span>До ближайшей зарплаты</span>
+          </div>
+        </div>
+        <div class="opt" onclick="selectOpt(this, 2, 'b')">
+          <div class="opt-ico">🗓️</div>
+          <div class="opt-text">
+            <strong>До 1 месяца</strong>
+            <span>Стандартный срок</span>
+          </div>
+        </div>
+        <div class="opt" onclick="selectOpt(this, 2, 'c')">
+          <div class="opt-ico">📆</div>
+          <div class="opt-text">
+            <strong>2–3 месяца</strong>
+            <span>Нужно время для возврата</span>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- SCREEN 2: PROFILES -->
-    <div id="screen2" class="profiles-screen">
-        <div class="profiles-header">
-            <h2 style="font-size:21px;font-weight:700;margin-bottom:4px;">+24 garotas online agora</h2>
-            <p style="color:#aaa;">perto de você</p>
+    <!-- ══════════════════════════════
+         SCREEN 3: КРЕДИТНАЯ ИСТОРИЯ
+    ══════════════════════════════ -->
+    <div class="screen" id="s3">
+      <div class="q-step">Вопрос 3 из 3</div>
+      <h2 class="q-title">Были ли просрочки по кредитам?</h2>
+      <p class="q-sub">Это не повлияет на вашу кредитную историю — только для подбора</p>
+      <div class="options">
+        <div class="opt" onclick="selectOpt(this, 3, 'a')">
+          <div class="opt-ico">✅</div>
+          <div class="opt-text">
+            <strong>Нет, всё чисто</strong>
+            <span>Кредитная история в порядке</span>
+          </div>
         </div>
-        
-        <div class="profiles-grid">
-            <div class="profile-card">
-                <img src="./img/1.webp" alt="">
-                <div class="profile-info">
-                    <strong>Larissa • 24</strong>
-                    <div style="font-size:13px;color:#00E676;">📍 700m • online</div>
-                </div>
-            </div>
-            
-            <div class="profile-card">
-                <img src="./img/2.webp" alt="">
-                <div class="profile-info">
-                    <strong>Beatriz • 23</strong>
-                    <div style="font-size:13px;color:#00E676;">📍 1.1km • online</div>
-                </div>
-            </div>
-            
-            <div class="profile-card slightly-blur">
-                <img src="./img/3.webp" alt="">
-                <div class="profile-info">
-                    <strong>Camila • 25</strong>
-                    <div style="font-size:13px;color:#aaa;">📍 2.3km</div>
-                </div>
-            </div>
-            
-            <div class="profile-card" style="position:relative;">
-                <img src="./img/4.webp" alt="" style="filter:blur(9px);">
-                <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);">
-                    <div style="text-align:center;color:white;">
-                        <div style="font-size:28px;margin-bottom:4px;">🔒</div>
-                        <strong>+31 perfis</strong>
-                    </div>
-                </div>
-                <div class="profile-info">
-                    <strong>Outras garotas</strong>
-                </div>
-            </div>
+        <div class="opt" onclick="selectOpt(this, 3, 'b')">
+          <div class="opt-ico">📋</div>
+          <div class="opt-text">
+            <strong>Были раньше, сейчас закрыты</strong>
+            <span>Старые просрочки уже погашены</span>
+          </div>
         </div>
-        
-        <div style="padding:0 16px 30px;">
-            <button onclick="handleFinalCTA()" class="main-cta" style="animation:none;">
-                DESBLOQUEAR CONVERSAS
-            </button>
+        <div class="opt" onclick="selectOpt(this, 3, 'c')">
+          <div class="opt-ico">🔄</div>
+          <div class="opt-text">
+            <strong>Есть сейчас</strong>
+            <span>Текущие обязательства не закрыты</span>
+          </div>
         </div>
+      </div>
     </div>
 
-    <!-- LIVE TOASTS -->
-    <div id="toast-container"></div>
+    <!-- ══════════════════════════════
+         SCREEN 4: ЗАГРУЗКА
+    ══════════════════════════════ -->
+    <div class="screen" id="s4">
+      <div class="loading-card">
+        <div class="spinner"></div>
+        <div>
+          <div class="loading-title">Подбираем предложения…</div>
+          <div class="loading-sub">Проверяем 9 МФО по вашему профилю</div>
+        </div>
+        <ul class="loading-steps" id="loadSteps">
+          <li id="ls1">Проверка доступных МФО</li>
+          <li id="ls2">Анализ условий одобрения</li>
+          <li id="ls3">Подбор лучших ставок</li>
+        </ul>
+      </div>
+    </div>
 
-    <script>
-        const notifications = [
-            "🔥 loirinha_22 entrou agora",
-            "💬 morena.vip te mandou um oi",
-            "👀 aninha_fit visualizou você",
-            "❤️ julia_real curtiu você",
-            "📍 isabelly está a 600m",
-            "💋 carolzinha quer conversar",
-            "🟢 bella.x está online"
-        ];
-        
-        function createToast() {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = 'live-toast';
-            toast.innerHTML = `
-                <div style="width:38px;height:38px;border-radius:50%;background:url('./img/${Math.floor(Math.random()*4)+1}.webp') center/cover;"></div>
-                <div>${notifications[Math.floor(Math.random()*notifications.length)]}</div>
-            `;
-            container.appendChild(toast);
-            
-            setTimeout(() => toast.classList.add('show'), 100);
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => toast.remove(), 600);
-            }, 3400);
-        }
-        
-        function startToasts() {
-            setTimeout(() => createToast(), 800);
-            setInterval(() => {
-                if (Math.random() > 0.35) createToast();
-            }, 4800);
-        }
-        
-        function goToProfiles() {
-            document.getElementById('screen1').style.display = 'none';
-            document.getElementById('screen2').style.display = 'flex';
-            
-            // FOMO effect
-            setTimeout(() => {
-                const cta = document.getElementById('mainCTA');
-                if (cta) {
-                    cta.style.transition = 'all 0.4s';
-                    cta.style.opacity = '0.6';
-                    cta.innerHTML = 'gata.s23 saiu do chat... 😔<br><small style="font-size:14px;">Tentar Responder</small>';
-                }
-            }, 6500);
-        }
-        
-        function handleFinalCTA() {
-            const btn = document.querySelector('#screen2 .main-cta');
-            btn.style.transform = 'scale(0.94)';
-            setTimeout(() => {
-                window.location.href = 'https://zrfny.bemobtrcks.com/click/1';
-            }, 380);
-        }
-        
-        // Init
-        window.onload = () => {
-            document.getElementById('screen1').style.display = 'block';
-            
-            // Typing animation
-            setTimeout(() => {
-                document.getElementById('typing').style.opacity = '0.9';
-            }, 1400);
-            
-            startToasts();
-        };
-    </script>
+    <!-- ══════════════════════════════
+         SCREEN 5: РЕЗУЛЬТАТ
+    ══════════════════════════════ -->
+    <div class="screen" id="s5">
+
+      <div class="result-card">
+        <div class="result-num" id="resultNum">7</div>
+        <div class="result-label">МФО готовы рассмотреть вашу заявку</div>
+        <div class="result-tags">
+          <span class="rtag">✓ Одобрение от 5 мин</span>
+          <span class="rtag">✓ Деньги на карту</span>
+          <span class="rtag">✓ Первый займ 0%</span>
+        </div>
+      </div>
+
+      <div class="result-offers">
+        <div class="r-offer">
+          <div class="r-offer-left">
+            <div class="r-ico" style="background:#FEF9C3">💛</div>
+            <div class="r-name">ЛайкЗайм<span>До 100 000 ₽ · от 0%</span></div>
+          </div>
+          <div class="r-prob prob-hi">Высокий шанс</div>
+        </div>
+        <div class="r-offer">
+          <div class="r-offer-left">
+            <div class="r-ico" style="background:#D1FAE5">🟢</div>
+            <div class="r-name">Zaymigo<span>До 30 000 ₽ · от 0%</span></div>
+          </div>
+          <div class="r-prob prob-hi">Высокий шанс</div>
+        </div>
+        <div class="r-offer">
+          <div class="r-offer-left">
+            <div class="r-ico" style="background:#DBEAFE">🔵</div>
+            <div class="r-name">RocketMan<span>До 50 000 ₽ · от 0%</span></div>
+          </div>
+          <div class="r-prob prob-hi">Высокий шанс</div>
+        </div>
+        <div class="r-offer">
+          <div class="r-offer-left">
+            <div class="r-ico" style="background:#F3F4F6">⚡</div>
+            <div class="r-name">Деньги в долг<span>До 50 000 ₽ · от 0%</span></div>
+          </div>
+          <div class="r-prob prob-mid">Хороший шанс</div>
+        </div>
+        <div class="r-offer">
+          <div class="r-offer-left">
+            <div class="r-ico" style="background:#FEE2E2">🔴</div>
+            <div class="r-name">+ ещё 3 предложения<span>Показать все →</span></div>
+          </div>
+          <div class="r-prob prob-mid">Смотреть</div>
+        </div>
+      </div>
+
+      <button class="btn" id="ctaBtn" onclick="goToVitrina()">
+        Смотреть все предложения →
+      </button>
+      <div class="btn-sub">Переходите и оформляйте прямо сейчас</div>
+      <div class="result-hint">
+        ⏱ Предложения зарезервированы на&nbsp;<strong id="resTimer">14:59</strong>&nbsp;— успейте оформить
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="foot">
+    <p>Информация носит ознакомительный характер и не является публичной офертой. Решение о выдаче займа принимается МФО самостоятельно. Реклама.</p>
+  </footer>
+
+</div><!-- /wrap -->
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   CONFIG — ЗАМЕНИ НА СВОЙ URL ВИТРИНЫ
+═══════════════════════════════════════════════════════ */
+var VITRINA_URL = 'https://zaimoshop.ru/XXX999XXX'; // ← твой URL витрины leads.su
+
+/* ═══════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════ */
+var answers  = { 1: null, 2: null, 3: null };
+var current  = 0; // 0 = intro, 1–3 = questions, 4 = loading, 5 = result
+var TOTAL_Q  = 3;
+
+/* ═══════════════════════════════════════════════════════
+   PROGRESS
+═══════════════════════════════════════════════════════ */
+function setProgress(q) {
+  var wrap  = document.getElementById('progWrap');
+  var fill  = document.getElementById('progFill');
+  var label = document.getElementById('progLabel');
+  if (q === 0 || q >= 5) {
+    wrap.style.display = 'none';
+    return;
+  }
+  wrap.style.display = 'block';
+  label.textContent  = 'Шаг ' + Math.min(q, TOTAL_Q) + ' из ' + TOTAL_Q;
+  var pct = Math.min(q / TOTAL_Q * 100, 100);
+  setTimeout(function(){ fill.style.width = pct + '%'; }, 30);
+}
+
+/* ═══════════════════════════════════════════════════════
+   SCREEN NAVIGATION
+═══════════════════════════════════════════════════════ */
+function showScreen(n) {
+  document.querySelectorAll('.screen').forEach(function(el){
+    el.classList.remove('active');
+  });
+  var el = document.getElementById('s' + n);
+  if (el) {
+    el.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  current = n;
+  setProgress(n);
+}
+
+/* ═══════════════════════════════════════════════════════
+   START QUIZ
+═══════════════════════════════════════════════════════ */
+function startQuiz() {
+  showScreen(1);
+}
+
+/* ═══════════════════════════════════════════════════════
+   SELECT OPTION
+═══════════════════════════════════════════════════════ */
+function selectOpt(el, qNum, val) {
+  // визуальный выбор
+  var parent = el.parentNode;
+  parent.querySelectorAll('.opt').forEach(function(o){ o.classList.remove('selected'); });
+  el.classList.add('selected');
+  answers[qNum] = val;
+
+  // небольшая задержка для тактильного ощущения, потом идём дальше
+  setTimeout(function(){
+    if (qNum < TOTAL_Q) {
+      showScreen(qNum + 1);
+    } else {
+      showScreen(4);
+      runLoader();
+    }
+  }, 320);
+}
+
+/* ═══════════════════════════════════════════════════════
+   LOADER SEQUENCE
+═══════════════════════════════════════════════════════ */
+function runLoader() {
+  var steps = ['ls1','ls2','ls3'];
+  var delays = [600, 1300, 2000];
+  steps.forEach(function(id, i){
+    setTimeout(function(){
+      var el = document.getElementById(id);
+      if (el) el.classList.add('done');
+    }, delays[i]);
+  });
+  setTimeout(function(){
+    // рассчитываем кол-во офферов по ответам
+    var n = calcOfferCount();
+    document.getElementById('resultNum').textContent = n;
+    showScreen(5);
+    startResTimer();
+  }, 2800);
+}
+
+/* ═══════════════════════════════════════════════════════
+   OFFER COUNT LOGIC (всё равно ведём на одну витрину)
+═══════════════════════════════════════════════════════ */
+function calcOfferCount() {
+  var ki = answers[3]; // кредитная история
+  if (ki === 'a') return 9;      // чистая КИ — все МФО
+  if (ki === 'b') return 7;      // были просрочки
+  return 5;                       // есть просрочки
+}
+
+/* ═══════════════════════════════════════════════════════
+   RESERVATION TIMER (urgency на result экране)
+═══════════════════════════════════════════════════════ */
+function startResTimer() {
+  var secs = 15 * 60; // 15 минут
+  var el = document.getElementById('resTimer');
+  var t = setInterval(function(){
+    secs--;
+    if (secs <= 0) { clearInterval(t); if(el) el.textContent = '0:00'; return; }
+    var m = Math.floor(secs / 60);
+    var s = secs % 60;
+    if (el) el.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+  }, 1000);
+}
+
+/* ═══════════════════════════════════════════════════════
+   GO TO VITRINA — прокидываем все UTM + click_id
+═══════════════════════════════════════════════════════ */
+function goToVitrina() {
+  var base   = VITRINA_URL;
+  var params = new URLSearchParams(window.location.search);
+
+  // добавляем ответы квиза для аналитики (опционально)
+  params.set('q_sum',  answers[1] || '');
+  params.set('q_term', answers[2] || '');
+  params.set('q_ki',   answers[3] || '');
+
+  var sep = base.indexOf('?') !== -1 ? '&' : '?';
+  window.location.href = base + sep + params.toString();
+}
+
+/* ═══════════════════════════════════════════════════════
+   КЛИК-ТРЕКИНГ (простой пиксель)
+═══════════════════════════════════════════════════════ */
+function trackEvent(name) {
+  try {
+    new Image().src = '/px?e=' + encodeURIComponent(name) + '&t=' + Date.now();
+    if (window.dataLayer) dataLayer.push({ event: name });
+  } catch(e) {}
+}
+
+/* ═══════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', function(){
+  // если пришёл с параметром ?skip=1 — сразу в квиз
+  var p = new URLSearchParams(window.location.search);
+  if (p.get('skip') === '1') startQuiz();
+  trackEvent('prelanding_view');
+});
+</script>
 </body>
 </html>
